@@ -32,7 +32,7 @@ module "db" {
   identifier = "pvault"
 
   engine               = "postgres"
-  engine_version       = "14.3"
+  engine_version       = "14.5"
   family               = "postgres14" # DB parameter group
   major_engine_version = "14"         # DB option group
 
