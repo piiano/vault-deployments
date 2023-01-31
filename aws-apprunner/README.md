@@ -61,7 +61,7 @@ authtoken = "Secret Manager: /pvault/pvault_service_admin_api_key --> retrieve v
 vault_url = "https://<random dns>.<region>.awsapprunner.com"
 ```
 
-To check that the Vault is working as expected run the following from inside the application VPC. By default the script deploys a bastion machine that could be used for that purpose:
+To check that the Vault is working as expected run the following from inside the application VPC. Optionally, the deployment script can deploy a bastion machine for this purpose:
 
 ```sh
 alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.1.3"
