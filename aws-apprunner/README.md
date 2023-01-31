@@ -1,6 +1,6 @@
 # terraform-piiano-vault-apprunner
 
-This module deploys Piiano vault for a given AWS region. It will outputs the private Piiano-vault URL region post deployment.
+This module deploys Piiano vault for a given AWS region. It will outputs the private Vault URL post deployment.
 
 ## Installed Components
 
@@ -17,9 +17,9 @@ This module deploys Piiano vault for a given AWS region. It will outputs the pri
 
 ## Options Summary
 
-1. The module can create or reuse two existing VPCs:
-   1. `pvault-vpc` - Where all the `piiano-vault` resources are deployes
-   1. `client-vpc` - Where all the clients resources are deployed
+1. The module can either create or reuse two existing VPCs:
+   1. `pvault-vpc` - where all the `piiano-vault` resources are deployes
+   1. `client-vpc` - where all the clients resources are deployed
 2. When creating the client-vpc, a bastion will be installed there to allow communication with the Vault.
 
 ## Diagram
@@ -46,14 +46,14 @@ terraform apply
 
 ### Post installation
 
-A successful installation will have an output like this:
+When a successful installation completes, it shows the following output:
 
 ```
 authtoken = "Secret Manager: /pvault/pvault_service_admin_api_key --> retrieve value"
 vault_url = "https://<random dns>.<region>.awsapprunner.com"
 ```
 
-To check that the installation works run the following:
+To check that the Vault is working as expected run the following from inside the application VPC. By default the script deploys a bastion machine that could be used for that purpose:
 
 ```
 alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.1.3"
