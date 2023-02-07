@@ -1,5 +1,5 @@
 locals {
-  autoscaler_service_target = var.create_ecs_cluster == false && var.ecs_cluster_id != "" ? "service/${var.ecs_cluster_name}/pvault" : "service/pvault-ecs-fargate/pvault"
+  autoscaler_service_target = var.create_ecs_cluster == false && var.ecs_cluster_name != "" ? "service/${var.ecs_cluster_name}/pvault" : "service/pvault-ecs-fargate/pvault"
 }
 
 resource "aws_appautoscaling_target" "pvault_target" {
@@ -10,6 +10,10 @@ resource "aws_appautoscaling_target" "pvault_target" {
   resource_id = local.autoscaler_service_target
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"
+  
+  depends_on = [
+    aws_ecs_service.pvault
+  ]
 }
 
 resource "aws_appautoscaling_policy" "ecs_average_cpu_50" {
@@ -28,4 +32,8 @@ resource "aws_appautoscaling_policy" "ecs_average_cpu_50" {
 
     target_value = 50
   }
+  
+  depends_on = [
+    aws_ecs_service.pvault
+  ]
 }

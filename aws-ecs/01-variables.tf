@@ -30,14 +30,8 @@ variable "vpc_id" {
   default     = ""
 }
 
-variable "ecs_cluster_id" {
-  description = "The existing ECS_ID"
-  type        = string
-  default     = ""
-}
-
 variable "ecs_cluster_name" {
-  description = "The existing ECS cluster name. Only set for autoscaling"
+  description = "The existing ECS cluster name"
   type        = string
   default     = ""
 }

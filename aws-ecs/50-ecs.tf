@@ -1,5 +1,11 @@
 locals {
-  cluster_id = var.create_ecs_cluster == false && var.ecs_cluster_id != "" ? var.ecs_cluster_id : one(module.ecs).cluster_id
+  cluster_id = var.create_ecs_cluster == false && var.ecs_cluster_name != "" ? one(data.aws_ecs_cluster.pvault_existing).arn : one(module.ecs).cluster_id
+}
+
+data "aws_ecs_cluster" "pvault_existing" {
+  count = var.create_ecs_cluster ? 0 : 1
+  
+  cluster_name = var.ecs_cluster_name
 }
 
 # Set up a log group to get container logs
