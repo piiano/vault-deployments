@@ -69,6 +69,12 @@ alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.1.3"
 pvault --addr <VAULT URL> --authtoken '<token from the secret manager>' selftest basic
 ```
 
+### Manual backups
+It is possible to set up AWS Backup that will handle automated node backups as well as automated DB snapshots.
+To set it up please visit [AWS Backup](https://us-east-2.console.aws.amazon.com/backup/home) section. Here, you should set up a Backup plan - click the "Create Backup plan" button, choose your option
+(for example, Build a new plan) and fill in the required parameters - plan name, backup rule name and, optionally, backup frequency.
+Finally you should assign the resoureces to back up with the plan created. Set the "Define resource selection" radio button to "Include specific resource types" and select your RDS database.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

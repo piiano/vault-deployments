@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "aws_aux_region" {
+  description = "AWS region to replicate RDS snapshots to"
+  type        = string
+  default     = "us-east-1"
+}
+
 variable "create_vpc" {
   type    = bool
   default = true
@@ -20,6 +26,28 @@ variable "create_ecs_cluster" {
 }
 
 variable "autoscaler_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "snapshot_replication_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "create_aux_kms_key" {
+  description = "Flag to enable KMS key creation to use with aux region for cross-region RDS snapshots encryption"
+  type        = bool
+  default     = true
+}
+
+variable "aux_kms_key_arn" {
+  description = "The ARN of the existing KMS key in aux region"
+  type        = string
+  default     = ""
+}
+
+variable "backup_enabled" {
   type    = bool
   default = false
 }
