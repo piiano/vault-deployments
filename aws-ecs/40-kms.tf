@@ -7,6 +7,6 @@ resource "aws_kms_key" "pvault" {
 }
 
 resource "aws_kms_alias" "pvault" {
-  name          = "alias/pvault"
+  name          = "alias/pvault-server"
   target_key_id = aws_kms_key.pvault.key_id
 }

@@ -48,7 +48,8 @@ resource "aws_iam_policy" "pvault_kms" {
       {
         Effect = "Allow"
         Action = [
-          "kms:*",
+          "kms:Encrypt",
+          "kms:Decrypt",
         ]
         Resource = [
           "${aws_kms_key.pvault.arn}"

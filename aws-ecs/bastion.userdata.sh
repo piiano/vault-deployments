@@ -2,11 +2,10 @@
 
 # updates
 yum update -y
-amazon-linux-extras install postgresql10
+amazon-linux-extras install postgresql14 docker -y
 yum install htop jq nc -y
 
-# install Docker
-amazon-linux-extras install docker -y
+# enable Docker service
 service docker start
 chkconfig docker on
 

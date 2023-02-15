@@ -17,7 +17,7 @@ resource "aws_security_group" "bastion" {
   vpc_id = local.vpc_id
 
   egress {
-    description = "Allow All 443 Egress for SSM Accessye"
+    description = "Allow All 443 Egress for SSM Access"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"

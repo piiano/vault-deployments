@@ -99,6 +99,7 @@ variable "pvault_port" {
 variable "pvault_service_license" {
   description = "Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers"
   type        = string
+  sensitive   = true
 }
 
 variable "create_client_bastion" {

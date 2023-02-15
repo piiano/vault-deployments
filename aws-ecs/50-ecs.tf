@@ -78,7 +78,7 @@ resource "aws_ecs_task_definition" "pvault" {
       },
       "portMappings": [
         {
-          "containerPort": ${var.pvault_port},
+          "containerPort": 8123,
           "hostPort": ${var.pvault_port},
           "protocol": "tcp",
           "name": "api"
