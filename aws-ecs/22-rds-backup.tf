@@ -1,5 +1,5 @@
 locals {
-  aux_kms_key = var.create_aux_kms_key == false && var.aux_kms_key_arn != "" ? var.aux_kms_key_arn : one(module.kms).key_arn
+  aux_kms_key = var.create_aux_kms_key == false && var.aux_kms_key_arn != "" ? var.aux_kms_key_arn : try(one(module.kms).key_arn, "")
 }
 
 provider "aws" {
@@ -72,11 +72,15 @@ resource "aws_iam_role" "pvault_backup" {
 }
 
 resource "aws_iam_role_policy_attachment" "pvault_backup" {
+  count  = var.backup_enabled ? 1 : 0
+
   role       = one(aws_iam_role.pvault_backup).name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
 }
 
 resource "aws_backup_selection" "pvault_rds_backup" {
+  count  = var.backup_enabled ? 1 : 0
+
   name         = "pvault_rds"
   iam_role_arn = one(aws_iam_role.pvault_backup).arn
   plan_id      = one(aws_backup_plan.pvault).id
