@@ -1,5 +1,5 @@
 output "vault_url" {
-  value = "https://${aws_alb.pvault.dns_name}"
+  value = "http://${aws_alb.pvault.dns_name}"
 }
 
 output "authtoken" {

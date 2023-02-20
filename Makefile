@@ -38,7 +38,7 @@ infra-plan: infra-init
 .PHONY: infra-apply
 infra-apply: infra-init
 	terraform -chdir=$(TF_DIR) apply -auto-approve \
-		-var-file=$(ENV).tfvars $(TF_VARS)
+		-var-file=$(ENV).tfvars
 
 .PHONY: infra-destroy
 infra-destroy: infra-init
