@@ -42,7 +42,8 @@ infra-apply: infra-init
 
 .PHONY: infra-destroy
 infra-destroy: infra-init
-	terraform -chdir=$(TF_DIR) destroy -auto-approve
+	terraform -chdir=$(TF_DIR) destroy -auto-approve \
+                -var-file=$(ENV).tfvars
 
 
 ifndef SERVICE
