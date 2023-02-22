@@ -16,7 +16,7 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_db_subnet_group" "rds" {
-  name       = "pvault"
+  name       = "pvault-${random_id.instance.hex}"
   subnet_ids = local.database_subnet_ids
 
   tags = {
@@ -29,7 +29,7 @@ module "db" {
   source  = "terraform-aws-modules/rds/aws"
   version = "5.2.3"
 
-  identifier = "pvault"
+  identifier = "pvault-${random_id.instance.hex}"
 
   engine               = "postgres"
   engine_version       = "14.5"
@@ -72,7 +72,7 @@ module "db" {
 }
 
 resource "aws_secretsmanager_secret" "db_password" {
-  name                    = "/pvault/db_password"
+  name                    = "/pvault/instance-${random_id.instance.hex}/db_password"
   recovery_window_in_days = 0
 }
 
@@ -82,7 +82,7 @@ resource "aws_secretsmanager_secret_version" "db_password" {
 }
 
 resource "aws_ssm_parameter" "db_hostname" {
-  name  = "/pvault/db_hostname"
+  name  = "/pvault/instance-${random_id.instance.hex}/db_hostname"
   type  = "String"
   value = module.db.db_instance_address
 }
