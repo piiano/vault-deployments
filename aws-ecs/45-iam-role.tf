@@ -19,7 +19,7 @@ data "aws_arn" "db_password" {
 }
 
 resource "aws_iam_policy" "pvault_secrets" {
-  name        = "pvault-secrets"
+  name        = "pvault-secrets-${random_id.instance.hex}"
   description = "pvault-secrets policy"
 
   policy = jsonencode({
@@ -39,7 +39,7 @@ resource "aws_iam_policy" "pvault_secrets" {
 }
 
 resource "aws_iam_policy" "pvault_kms" {
-  name        = "pvault-kms"
+  name        = "pvault-kms-${random_id.instance.hex}"
   description = "pvault-kms policy"
 
   policy = jsonencode({
@@ -63,7 +63,7 @@ data "aws_arn" "db_hostname" {
 }
 
 resource "aws_iam_policy" "pvault_parameter_store" {
-  name        = "vault-parameter-store"
+  name        = "vault-parameter-store-${random_id.instance.hex}"
   description = "vault-parameter-store policy"
 
   policy = jsonencode({

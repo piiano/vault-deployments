@@ -39,7 +39,7 @@ resource "aws_security_group" "bastion" {
 
 resource "aws_iam_role" "bastion" {
   count = var.create_bastion ? 1 : 0
-  name  = "pvault-bastion-role"
+  name  = "pvault-bastion-role-${random_id.instance.hex}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -63,7 +63,7 @@ resource "aws_iam_role_policy_attachment" "bastion" {
 
 resource "aws_iam_instance_profile" "bastion" {
   count = var.create_bastion ? 1 : 0
-  name  = "vault-bastion-iam-profile"
+  name  = "vault-bastion-iam-profile-${random_id.instance.hex}"
   role  = one(aws_iam_role.bastion).name
 }
 

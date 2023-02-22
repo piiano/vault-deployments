@@ -6,7 +6,7 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.19.0"
 
-  name             = "pvault-vpc"
+  name             = "pvault-vpc-${random_id.instance.hex}"
   cidr             = "10.0.0.0/16"
   azs              = slice(data.aws_availability_zones.available.names, 0, 2)
   public_subnets   = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -25,5 +25,3 @@ locals {
   database_subnet_ids = var.create_vpc == false && var.database_subnet_ids != [] ? var.database_subnet_ids : one(module.vpc).database_subnets
   allowed_cidr_blocks = var.create_vpc == false && var.allowed_cidr_blocks != [] ? var.allowed_cidr_blocks : one(module.vpc).private_subnets_cidr_blocks
 }
-
-
