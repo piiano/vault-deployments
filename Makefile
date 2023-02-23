@@ -15,12 +15,10 @@ AWS_ACCOUNT		:= 963086747405
 export AWS_REGION	?= us-east-2
 export AWS_DEFAULT_REGION ?= $(AWS_REGION)
 ECR_REGISTRY		:= $(AWS_ACCOUNT).dkr.ecr.$(AWS_DEFAULT_REGION).amazonaws.com
-RDS_INSTANCE_TYPE	?= db.r6g.large
+RDS_INSTANCE_TYPE	?= db.t4g.medium
 
 define TF_VARS
--var="rds_password=$(RDS_PASS)" \
--var="service=$(SERVICE)" \
--var="rds_instance_class=$(RDS_INSTANCE_TYPE)"
+-var="rds_instance_class"="$(RDS_INSTANCE_TYPE)"
 endef
 
 .PHONY: infra-init
@@ -33,17 +31,17 @@ infra-init:
 .PHONY: infra-plan
 infra-plan: infra-init
 	terraform -chdir=$(TF_DIR) plan \
-		-var-file=$(ENV).tfvars
+		-var-file=$(ENV).tfvars $(TF_VARS)
 
 .PHONY: infra-apply
 infra-apply: infra-init
 	terraform -chdir=$(TF_DIR) apply -auto-approve \
-		-var-file=$(ENV).tfvars
+		-var-file=$(ENV).tfvars $(TF_VARS)
 
 .PHONY: infra-destroy
 infra-destroy: infra-init
 	terraform -chdir=$(TF_DIR) destroy -auto-approve \
-                -var-file=$(ENV).tfvars
+                -var-file=$(ENV).tfvars $(TF_VARS)
 
 
 ifndef SERVICE
