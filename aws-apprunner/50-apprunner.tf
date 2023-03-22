@@ -75,12 +75,14 @@ resource "aws_apprunner_service" "pvault" {
       image_configuration {
         port = var.pvault_port
         runtime_environment_variables = {
-          PVAULT_DEVMODE     = "1"
-          PVAULT_DB_HOSTNAME = module.db.db_instance_address
-          PVAULT_DB_NAME     = var.rds_db_name
-          PVAULT_DB_USER     = var.rds_username
-          PVAULT_DB_PORT     = var.rds_port
-          PVAULT_KMS_URI     = "aws-kms://${aws_kms_key.pvault.arn}"
+          PVAULT_DEVMODE                 = "1"
+          PVAULT_DB_HOSTNAME             = module.db.db_instance_address
+          PVAULT_DB_NAME                 = var.rds_db_name
+          PVAULT_DB_USER                 = var.rds_username
+          PVAULT_DB_PORT                 = var.rds_port
+          PVAULT_LOG_CUSTOMER_IDENTIFIER = var.pvault_log_customer_identifier
+          PVAULT_LOG_CUSTOMER_ENV        = var.pvault_log_customer_env
+          PVAULT_KMS_URI                 = "aws-kms://${aws_kms_key.pvault.arn}"
         }
         runtime_environment_secrets = {
           PVAULT_DB_PASSWORD           = aws_secretsmanager_secret.db_password.arn

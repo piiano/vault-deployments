@@ -71,7 +71,7 @@ variable "rds_port" {
 variable "pvault_image" {
   description = "Pvault image:tag public image"
   type        = string
-  default     = "public.ecr.aws/w6p8i1g8/pvault-server:1.1.3"
+  default     = "public.ecr.aws/s4s5s6q8/pvault-server:1.2.2"
 }
 
 variable "pvault_port" {
@@ -82,6 +82,16 @@ variable "pvault_port" {
 
 variable "pvault_service_license" {
   description = "Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers"
+  type        = string
+}
+
+variable "pvault_log_customer_identifier" {
+  description = "Identifies the customer in all the observability platforms"
+  type        = string
+}
+
+variable "pvault_log_customer_env" {
+  description = "Identifies the environment in all the observability platforms. Recommended values are PRODUCTION, STAGING, and DEV"
   type        = string
 }
 
