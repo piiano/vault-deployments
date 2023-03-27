@@ -52,7 +52,7 @@ module "db" {
   port     = var.rds_port
 
   # Backups
-  backup_retention_period = 7
+  backup_retention_period = var.rds_backup_retention_period
 
   # Tuning
   parameters = [

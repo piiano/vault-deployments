@@ -68,6 +68,17 @@ variable "rds_port" {
   default     = "5432"
 }
 
+variable "rds_backup_retention_period" {
+  description = "The days to retain backups for RDS. Possible values are 0-35"
+  validation {
+    condition     = var.rds_backup_retention_period >= 1 && var.rds_backup_retention_period <= 35
+    error_message = "rds_backup_retention_period must be a numbert between 1 and 35"
+  }
+  type     = string
+  nullable = false
+  default  = 7
+}
+
 variable "pvault_image" {
   description = "Pvault image:tag public image"
   type        = string
