@@ -11,10 +11,12 @@
 # Vault Deployments
 
 ## Background
+
 Piiano Vault is the secure home for sensitive personal data. It allows you to safely store sensitive personal data in your own cloud environment with
 automated compliance controls.
 Vault is deployed within your own architecture, next to other DBs used by the applications, and should be used to store the most critical sensitive personal data, such as credit cards and bank account numbers, names, emails, national IDs (e.g. SSN), phone numbers, etc.
 The main benefits are:
+
 - Field level encryption, including key rotation
 - Searchability is allowed over the encrypted data
 - Full audit log for all data accesses
@@ -32,4 +34,5 @@ This repository contains deployments for Vault in cloud environments.
 
 Each of these folders can be used independently to deploy Vault in its respective cloud and technology:
 
-[AWS AppRunner](./aws-apprunner)
+1. [AWS AppRunner](./aws-apprunner)
+1. [AWS ECS](./aws-ecs)
