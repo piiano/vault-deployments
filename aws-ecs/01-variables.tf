@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "deployment_id" {
+  description = "deployment_id"
+  type        = string
+  default     = "pvault"
+}
+
 variable "create_vpc" {
   type    = bool
   default = true
@@ -20,12 +26,19 @@ variable "create_ecs_cluster" {
 }
 
 variable "create_pvault_autoscaler" {
-  type    = bool
-  default = true
+  description = "The existing VPC_ID"
+  type        = bool
+  default     = true
 }
 
 variable "vpc_id" {
   description = "The existing VPC_ID"
+  type        = string
+  default     = ""
+}
+
+variable "database_subnet_group_name" {
+  description = "The Private subnets where the Pvault will deploy"
   type        = string
   default     = ""
 }
@@ -78,10 +91,16 @@ variable "rds_port" {
   default     = "5432"
 }
 
+variable "rds_backup_retention_period" {
+  description = "Pvault RDS backup_retention_period"
+  type        = number
+  default     = 30
+}
+
 variable "pvault_image" {
   description = "Pvault image:tag public image"
   type        = string
-  default     = "public.ecr.aws/s4s5s6q8/pvault-server:1.2.2"
+  default     = "piiano/pvault-server:1.3.1"
 }
 
 variable "pvault_port" {

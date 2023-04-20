@@ -1,154 +1,41 @@
-resource "aws_iam_role" "pvault_ecs" {
-  name = "pvault-ecs-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-data "aws_arn" "db_password" {
-  arn = aws_secretsmanager_secret.db_password.arn
-}
-
-resource "aws_iam_policy" "pvault_secrets" {
-  name        = "pvault-secrets"
-  description = "pvault-secrets policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue",
-        ]
-        Resource = [
-          "arn:${data.aws_arn.db_password.partition}:${data.aws_arn.db_password.service}:${data.aws_arn.db_password.region}:${data.aws_arn.db_password.account}:secret:/pvault/*"
-        ]
-      },
-    ]
-  })
-}
-
-resource "aws_iam_policy" "pvault_kms" {
-  name        = "pvault-kms"
-  description = "pvault-kms policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-        ]
-        Resource = [
-          "${aws_kms_key.pvault.arn}"
-        ]
-      },
-    ]
-  })
-}
-
-data "aws_arn" "db_hostname" {
-  arn = aws_ssm_parameter.db_hostname.arn
-}
-
-resource "aws_iam_policy" "pvault_parameter_store" {
-  name        = "vault-parameter-store"
-  description = "vault-parameter-store policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ssm:GetParameters"
-        ]
-        Resource = [
-          "arn:${data.aws_arn.db_hostname.partition}:${data.aws_arn.db_hostname.service}:${data.aws_arn.db_hostname.region}:${data.aws_arn.db_hostname.account}:parameter/pvault/*"
-        ]
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "pvault_ecs_secrets" {
-  role       = aws_iam_role.pvault_ecs.name
-  policy_arn = aws_iam_policy.pvault_secrets.arn
-}
-
-resource "aws_iam_role_policy_attachment" "pvault_ecs_kms" {
-  role       = aws_iam_role.pvault_ecs.name
-  policy_arn = aws_iam_policy.pvault_kms.arn
-}
-
-resource "aws_iam_role_policy_attachment" "pvault_ecs_parameter_store" {
-  role       = aws_iam_role.pvault_ecs.name
-  policy_arn = aws_iam_policy.pvault_parameter_store.arn
-}
-
-resource "aws_iam_role_policy_attachment" "pvault_ecs_container_service" {
-  role       = aws_iam_role.pvault_ecs.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-}
-
-
 # Set up a log group to get container logs
 resource "aws_cloudwatch_log_group" "pvault" {
-  name = "/aws/ecs/pvault-logs"
+  name = "/aws/ecs/${var.deployment_id}"
 }
 
-module "ecs" {
-  count = var.create_ecs_cluster ? 1 : 0
+resource "aws_security_group" "service" {
+  name   = "${var.deployment_id}-service-sg"
+  vpc_id = local.vpc_id
 
-  source  = "terraform-aws-modules/ecs/aws"
-  version = "4.1.3"
-
-  cluster_name = "pvault-ecs-fargate"
-
-  cluster_settings = {
-    name  = "containerInsights"
-    value = "enabled"
+  egress {
+    description = "Allow all egress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "Allow all ingress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = local.allowed_cidr_blocks
   }
 
-  cluster_configuration = {
-    execute_command_configuration = {
-      logging = "OVERRIDE"
-      log_configuration = {
-        cloud_watch_log_group_name = "/aws/ecs/pvault-logs"
-      }
-    }
+  tags = {
+    "Name" = "${var.deployment_id}_service_sg"
   }
-
-  fargate_capacity_providers = {
-    FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 100
-      }
-    }
-  }
-
 }
+
 
 
 resource "aws_ecs_task_definition" "pvault" {
-  family = "pvault-task"
+  family = "${var.deployment_id}-task"
 
   container_definitions = <<EOF
   [
     {
-      "name": "pvault-container",
+      "name": "${var.deployment_id}-container",
       "image": "${var.pvault_image}",
       "entryPoint": [],
       "environment": [
@@ -170,7 +57,7 @@ resource "aws_ecs_task_definition" "pvault" {
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "${aws_cloudwatch_log_group.pvault.id}",
+          "awslogs-group": "${aws_cloudwatch_log_group.pvault.name}",
           "awslogs-region": "${var.aws_region}",
           "awslogs-stream-prefix": "pvault"
         }
@@ -208,9 +95,39 @@ resource "aws_ecs_task_definition" "pvault" {
 
 }
 
+module "ecs" {
+  count = var.create_ecs_cluster ? 1 : 0
 
-resource "aws_security_group" "open" {
-  name   = "open-sg"
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "4.1.3"
+
+  cluster_name = "${var.deployment_id}-cluster"
+
+  cluster_settings = {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  cluster_configuration = {
+    execute_command_configuration = {
+      logging = "OVERRIDE"
+      log_configuration = {
+        cloud_watch_log_group_name = aws_cloudwatch_log_group.pvault.name
+      }
+    }
+  }
+
+  fargate_capacity_providers = {
+    FARGATE = {
+      default_capacity_provider_strategy = {
+        weight = 100
+      }
+    }
+  }
+}
+
+resource "aws_security_group" "alb" {
+  name   = "${var.deployment_id}-alb-sg"
   vpc_id = local.vpc_id
 
   egress {
@@ -220,6 +137,7 @@ resource "aws_security_group" "open" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   ingress {
     description = "Allow all ingress"
     from_port   = 0
@@ -229,25 +147,24 @@ resource "aws_security_group" "open" {
   }
 
   tags = {
-    "Name" = "open_sg"
+    "Name" = "${var.deployment_id}_alb_sg"
   }
 }
 
-
 resource "aws_alb" "pvault" {
-  name               = "pvault-ecs-alb"
+  name               = "${var.deployment_id}-alb"
   internal           = true
   load_balancer_type = "application"
   subnets            = local.private_subnet_ids
-  security_groups    = [aws_security_group.open.id]
+  security_groups    = [aws_security_group.alb.id]
 
   tags = {
-    Name = "pvault-alb"
+    Name = "${var.deployment_id}-alb"
   }
 }
 
 resource "aws_lb_target_group" "pvault" {
-  name        = "pvault-tg"
+  name        = "${var.deployment_id}-tg"
   port        = 8123
   protocol    = "HTTP"
   target_type = "ip"
@@ -264,10 +181,9 @@ resource "aws_lb_target_group" "pvault" {
   }
 
   tags = {
-    Name = "pvault-lb-tg"
+    Name = "${var.deployment_id}-lb-tg"
   }
 }
-
 
 resource "aws_lb_listener" "pvault" {
   load_balancer_arn = aws_alb.pvault.id
@@ -281,8 +197,8 @@ resource "aws_lb_listener" "pvault" {
 }
 
 resource "aws_ecs_service" "pvault" {
-  name            = "pvault"
-  cluster         = "pvault-ecs-fargate"
+  name            = var.deployment_id
+  cluster         = one(module.ecs).cluster_id
   task_definition = aws_ecs_task_definition.pvault.arn
   desired_count   = 1
 
@@ -293,11 +209,11 @@ resource "aws_ecs_service" "pvault" {
 
   network_configuration {
     subnets         = local.private_subnet_ids
-    security_groups = [aws_security_group.open.id]
+    security_groups = [aws_security_group.alb.id]
   }
 
   load_balancer {
-    container_name   = "pvault-container"
+    container_name   = "${var.deployment_id}-container"
     container_port   = 8123
     target_group_arn = aws_lb_target_group.pvault.arn
   }
