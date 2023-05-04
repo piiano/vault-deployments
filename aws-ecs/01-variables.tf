@@ -4,46 +4,62 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "deployment_id" {
+  description = "The unique deployment id of this deployment"
+  type        = string
+  default     = "pvault"
+}
+
 variable "create_vpc" {
-  type    = bool
-  default = true
+  description = "Controls if VPC should be created (it affects almost all resources)"
+  type        = bool
+  default     = true
 }
 
 variable "create_bastion" {
-  type    = bool
-  default = false
+  description = "Controls if a new EC2 bastion should be created in VPC"
+  type        = bool
+  default     = false
 }
 
 variable "create_ecs_cluster" {
-  type    = bool
-  default = true
+  description = "Controls if a new AWS ECS Cluster should be created"
+  type        = bool
+  default     = true
 }
 
 variable "create_pvault_autoscaler" {
-  type    = bool
-  default = true
+  description = "Controls if a service auto scaler should be created"
+  type        = bool
+  default     = true
 }
 
 variable "vpc_id" {
-  description = "The existing VPC_ID"
+  description = "The existing VPC_ID in case that `create_vpc` is false"
+  type        = string
+  default     = ""
+}
+
+variable "database_subnet_group_name" {
+  description = "This parameter specifies the name of the subnet group to deploy the database"
   type        = string
   default     = ""
 }
 
 variable "private_subnet_ids" {
-  description = "The Private subnets where the Pvault will deploy"
+  description = "The IDs of the private subnets where the Pvault service will deploy"
   type        = list(string)
   default     = []
 }
 
 variable "database_subnet_ids" {
-  description = "The Database subnets where the RDS will deploy"
+  description = "The IDs if the Database subnets where the RDS will deploy"
   type        = list(string)
   default     = []
 }
 
 variable "allowed_cidr_blocks" {
-  description = "The subnets CIDRs which allowed to access the RDS"
+  description = "The subnets CIDRs which allowed to access the Pvault service"
   type        = list(string)
   default     = []
 }
@@ -78,10 +94,22 @@ variable "rds_port" {
   default     = "5432"
 }
 
-variable "pvault_image" {
-  description = "Pvault image:tag public image"
+variable "rds_backup_retention_period" {
+  description = "The days to retain backups for the RDS"
+  type        = number
+  default     = 30
+}
+
+variable "pvault_repository" {
+  description = "Pvault repository public image"
   type        = string
-  default     = "public.ecr.aws/s4s5s6q8/pvault-server:1.2.2"
+  default     = "piiano/pvault-server"
+}
+
+variable "pvault_tag" {
+  description = "Pvault tag public image"
+  type        = string
+  default     = "1.3.1"
 }
 
 variable "pvault_port" {
@@ -103,9 +131,4 @@ variable "pvault_log_customer_identifier" {
 variable "pvault_log_customer_env" {
   description = "Identifies the environment in all the observability platforms. Recommended values are PRODUCTION, STAGING, and DEV"
   type        = string
-}
-
-variable "create_client_bastion" {
-  type    = bool
-  default = true
 }

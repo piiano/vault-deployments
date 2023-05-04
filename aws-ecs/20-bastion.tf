@@ -13,11 +13,12 @@ data "aws_ami" "amazon_linux_2" {
 
 resource "aws_security_group" "bastion" {
   count  = var.create_bastion ? 1 : 0
-  name   = "bastion-sg"
+  name   = "${var.deployment_id}-bastion"
   vpc_id = local.vpc_id
 
+  # Necessary too allow SSM 
   egress {
-    description = "Allow All 443 Egress for SSM Accessye"
+    description = "Allow All 443 Egress for SSM Access"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -25,7 +26,7 @@ resource "aws_security_group" "bastion" {
   }
 
   egress {
-    description = "Allow Internal 80 Egress pvault accss"
+    description = "Allow Internal 80 Egress PVault access"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -33,13 +34,13 @@ resource "aws_security_group" "bastion" {
   }
 
   tags = {
-    "Name" = "bastion_sg"
+    "Name" = "${var.deployment_id}-bastion"
   }
 }
 
 resource "aws_iam_role" "bastion" {
   count = var.create_bastion ? 1 : 0
-  name  = "pvault-bastion-role"
+  name  = "${var.deployment_id}-bastion-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -63,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "bastion" {
 
 resource "aws_iam_instance_profile" "bastion" {
   count = var.create_bastion ? 1 : 0
-  name  = "vault-bastion-iam-profile"
+  name  = "${var.deployment_id}-bastion-iam-profile"
   role  = one(aws_iam_role.bastion).name
 }
 
@@ -74,10 +75,10 @@ resource "aws_instance" "bastion" {
   instance_type               = "t3.small"
   vpc_security_group_ids      = [one(aws_security_group.bastion).id]
   iam_instance_profile        = one(aws_iam_instance_profile.bastion).name
-  user_data                   = templatefile("${path.module}/30-bastion.userdata.sh", {})
+  user_data                   = templatefile("${path.module}/20-bastion.userdata.sh", {})
   user_data_replace_on_change = true
   tags = {
-    Name = "vault-bastion-instance"
+    Name = "${var.deployment_id}-bastion"
     Role = "bastion"
   }
 }

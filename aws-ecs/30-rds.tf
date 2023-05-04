@@ -1,9 +1,9 @@
 resource "aws_security_group" "rds" {
-  name   = "rds-sg"
+  name   = "${var.deployment_id}-rds"
   vpc_id = local.vpc_id
 
   ingress {
-    description = "Allow postgress ingress from private subnets"
+    description = "Allow Postgres ingress from private subnets"
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
@@ -11,25 +11,15 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    "Name" = "rds_sg"
+    "Name" = "${var.deployment_id}-rds"
   }
 }
-
-resource "aws_db_subnet_group" "rds" {
-  name       = "pvault"
-  subnet_ids = local.database_subnet_ids
-
-  tags = {
-    Name = "pvault_subnet_group"
-  }
-}
-
 
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
   version = "5.2.3"
 
-  identifier = "pvault"
+  identifier = var.deployment_id
 
   engine               = "postgres"
   engine_version       = "14.5"
@@ -37,7 +27,7 @@ module "db" {
   major_engine_version = "14"         # DB option group
 
   # Network
-  db_subnet_group_name   = aws_db_subnet_group.rds.name
+  db_subnet_group_name   = local.database_subnet_group_name
   vpc_security_group_ids = [aws_security_group.rds.id]
   publicly_accessible    = false
   multi_az               = false
@@ -52,7 +42,7 @@ module "db" {
   port     = var.rds_port
 
   # Backups
-  backup_retention_period = 7
+  backup_retention_period = var.rds_backup_retention_period
 
   # Tuning
   parameters = [
@@ -67,22 +57,8 @@ module "db" {
   ]
 
   tags = {
-    "Name" = "pvault"
+    Name = var.deployment_id
   }
 }
 
-resource "aws_secretsmanager_secret" "db_password" {
-  name                    = "/pvault/db_password"
-  recovery_window_in_days = 0
-}
 
-resource "aws_secretsmanager_secret_version" "db_password" {
-  secret_id     = aws_secretsmanager_secret.db_password.id
-  secret_string = module.db.db_instance_password
-}
-
-resource "aws_ssm_parameter" "db_hostname" {
-  name  = "/pvault/db_hostname"
-  type  = "String"
-  value = module.db.db_instance_address
-}
