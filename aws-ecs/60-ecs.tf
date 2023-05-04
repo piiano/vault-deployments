@@ -4,7 +4,7 @@ resource "aws_cloudwatch_log_group" "pvault" {
 }
 
 resource "aws_security_group" "service" {
-  name   = "${var.deployment_id}-service-sg"
+  name   = "${var.deployment_id}-service"
   vpc_id = local.vpc_id
 
   egress {
@@ -23,7 +23,7 @@ resource "aws_security_group" "service" {
   }
 
   tags = {
-    "Name" = "${var.deployment_id}_service_sg"
+    "Name" = "${var.deployment_id}_service"
   }
 }
 
@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "pvault" {
   [
     {
       "name": "${var.deployment_id}-container",
-      "image": "${var.pvault_image}",
+      "image": "${var.pvault_repository}:${var.pvault_tag}",
       "entryPoint": [],
       "environment": [
         {"name": "PVAULT_DEVMODE", "value": "1"},
@@ -127,7 +127,7 @@ module "ecs" {
 }
 
 resource "aws_security_group" "alb" {
-  name   = "${var.deployment_id}-alb-sg"
+  name   = "${var.deployment_id}-alb"
   vpc_id = local.vpc_id
 
   egress {

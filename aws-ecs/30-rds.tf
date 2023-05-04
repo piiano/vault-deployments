@@ -1,5 +1,5 @@
 resource "aws_security_group" "rds" {
-  name   = "${var.deployment_id}-rds-sg"
+  name   = "${var.deployment_id}-rds"
   vpc_id = local.vpc_id
 
   ingress {
@@ -11,7 +11,7 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    "Name" = "${var.deployment_id}_rds_sg"
+    "Name" = "${var.deployment_id}-rds"
   }
 }
 

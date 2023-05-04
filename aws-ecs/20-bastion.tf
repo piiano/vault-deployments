@@ -13,9 +13,10 @@ data "aws_ami" "amazon_linux_2" {
 
 resource "aws_security_group" "bastion" {
   count  = var.create_bastion ? 1 : 0
-  name   = "${var.deployment_id}-bastion-sg"
+  name   = "${var.deployment_id}-bastion"
   vpc_id = local.vpc_id
 
+  # Necessary too allow SSM 
   egress {
     description = "Allow All 443 Egress for SSM Access"
     from_port   = 443
@@ -25,7 +26,7 @@ resource "aws_security_group" "bastion" {
   }
 
   egress {
-    description = "Allow Internal 80 Egress pvault access"
+    description = "Allow Internal 80 Egress PVault access"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -33,7 +34,7 @@ resource "aws_security_group" "bastion" {
   }
 
   tags = {
-    "Name" = "${var.deployment_id}_bastion_sg"
+    "Name" = "${var.deployment_id}-bastion"
   }
 }
 
@@ -77,7 +78,7 @@ resource "aws_instance" "bastion" {
   user_data                   = templatefile("${path.module}/20-bastion.userdata.sh", {})
   user_data_replace_on_change = true
   tags = {
-    Name = "${var.deployment_id}-bastion-instance"
+    Name = "${var.deployment_id}-bastion"
     Role = "bastion"
   }
 }

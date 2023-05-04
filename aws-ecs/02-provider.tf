@@ -4,7 +4,7 @@ provider "aws" {
     tags = {
       Deployment_id = var.deployment_id
       Terraform     = true
-      Service       = "Piiano Vault"
+      Service       = "Piiano Vault Server"
     }
   }
 }

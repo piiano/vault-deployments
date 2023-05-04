@@ -19,7 +19,9 @@ resource "aws_iam_role" "pvault_ecs" {
     ]
   })
 
-  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"]
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  ]
 
   inline_policy {
     name = "access_secrets_policy"

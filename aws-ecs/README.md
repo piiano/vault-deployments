@@ -74,13 +74,13 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.60 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.65 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.61.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.65.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
 
 ## Modules
@@ -128,29 +128,29 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_allowed_cidr_blocks"></a> [allowed\_cidr\_blocks](#input\_allowed\_cidr\_blocks) | The subnets CIDRs which allowed to access the RDS | `list(string)` | `[]` | no |
+| <a name="input_allowed_cidr_blocks"></a> [allowed\_cidr\_blocks](#input\_allowed\_cidr\_blocks) | The subnets CIDRs which allowed to access the Pvault service | `list(string)` | `[]` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region to deploy vault | `string` | `"us-east-2"` | no |
-| <a name="input_create_bastion"></a> [create\_bastion](#input\_create\_bastion) | n/a | `bool` | `false` | no |
-| <a name="input_create_client_bastion"></a> [create\_client\_bastion](#input\_create\_client\_bastion) | n/a | `bool` | `true` | no |
-| <a name="input_create_ecs_cluster"></a> [create\_ecs\_cluster](#input\_create\_ecs\_cluster) | n/a | `bool` | `true` | no |
-| <a name="input_create_pvault_autoscaler"></a> [create\_pvault\_autoscaler](#input\_create\_pvault\_autoscaler) | The existing VPC\_ID | `bool` | `true` | no |
-| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | n/a | `bool` | `true` | no |
-| <a name="input_database_subnet_group_name"></a> [database\_subnet\_group\_name](#input\_database\_subnet\_group\_name) | The Private subnets where the Pvault will deploy | `string` | `""` | no |
-| <a name="input_database_subnet_ids"></a> [database\_subnet\_ids](#input\_database\_subnet\_ids) | The Database subnets where the RDS will deploy | `list(string)` | `[]` | no |
-| <a name="input_deployment_id"></a> [deployment\_id](#input\_deployment\_id) | deployment\_id | `string` | `"pvault"` | no |
-| <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | The Private subnets where the Pvault will deploy | `list(string)` | `[]` | no |
-| <a name="input_pvault_image"></a> [pvault\_image](#input\_pvault\_image) | Pvault image:tag public image | `string` | `"piiano/pvault-server:1.3.1"` | no |
+| <a name="input_create_bastion"></a> [create\_bastion](#input\_create\_bastion) | Controls if a new EC2 bastion should be created in VPC | `bool` | `false` | no |
+| <a name="input_create_ecs_cluster"></a> [create\_ecs\_cluster](#input\_create\_ecs\_cluster) | Controls if a new AWS ECS Cluster should be created | `bool` | `true` | no |
+| <a name="input_create_pvault_autoscaler"></a> [create\_pvault\_autoscaler](#input\_create\_pvault\_autoscaler) | Controls if a service auto scaler should be created | `bool` | `true` | no |
+| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | Controls if VPC should be created (it affects almost all resources) | `bool` | `true` | no |
+| <a name="input_database_subnet_group_name"></a> [database\_subnet\_group\_name](#input\_database\_subnet\_group\_name) | This parameter specifies the name of the subnet group to deploy the database | `string` | `""` | no |
+| <a name="input_database_subnet_ids"></a> [database\_subnet\_ids](#input\_database\_subnet\_ids) | The IDs if the Database subnets where the RDS will deploy | `list(string)` | `[]` | no |
+| <a name="input_deployment_id"></a> [deployment\_id](#input\_deployment\_id) | The unique deployment id of this deployment | `string` | `"pvault"` | no |
+| <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | The IDs of the private subnets where the Pvault service will deploy | `list(string)` | `[]` | no |
 | <a name="input_pvault_log_customer_env"></a> [pvault\_log\_customer\_env](#input\_pvault\_log\_customer\_env) | Identifies the environment in all the observability platforms. Recommended values are PRODUCTION, STAGING, and DEV | `string` | n/a | yes |
 | <a name="input_pvault_log_customer_identifier"></a> [pvault\_log\_customer\_identifier](#input\_pvault\_log\_customer\_identifier) | Identifies the customer in all the observability platforms | `string` | n/a | yes |
 | <a name="input_pvault_port"></a> [pvault\_port](#input\_pvault\_port) | Pvault application port number | `string` | `"8123"` | no |
+| <a name="input_pvault_repository"></a> [pvault\_repository](#input\_pvault\_repository) | Pvault repository public image | `string` | `"piiano/pvault-server"` | no |
 | <a name="input_pvault_service_license"></a> [pvault\_service\_license](#input\_pvault\_service\_license) | Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers | `string` | n/a | yes |
+| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | Pvault tag public image | `string` | `"1.3.1"` | no |
 | <a name="input_rds_allocated_storage"></a> [rds\_allocated\_storage](#input\_rds\_allocated\_storage) | Pvault RDS initial allocated storage in GB | `number` | `"20"` | no |
-| <a name="input_rds_backup_retention_period"></a> [rds\_backup\_retention\_period](#input\_rds\_backup\_retention\_period) | Pvault RDS backup\_retention\_period | `number` | `30` | no |
+| <a name="input_rds_backup_retention_period"></a> [rds\_backup\_retention\_period](#input\_rds\_backup\_retention\_period) | The days to retain backups for the RDS | `number` | `30` | no |
 | <a name="input_rds_db_name"></a> [rds\_db\_name](#input\_rds\_db\_name) | Pvault RDS database name | `string` | `"pvault"` | no |
 | <a name="input_rds_instance_class"></a> [rds\_instance\_class](#input\_rds\_instance\_class) | Pvault RDS instance class | `string` | `"db.t4g.medium"` | no |
 | <a name="input_rds_port"></a> [rds\_port](#input\_rds\_port) | Pvault RDS port | `string` | `"5432"` | no |
 | <a name="input_rds_username"></a> [rds\_username](#input\_rds\_username) | Pvault RDS username | `string` | `"pvault"` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The existing VPC\_ID | `string` | `""` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The existing VPC\_ID in case that `create_vpc` is false | `string` | `""` | no |
 
 ## Outputs
 
