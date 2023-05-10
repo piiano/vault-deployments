@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "pvault_service_license" {
-  name                    = "/pvault/pvault_service_license"
+  name                    = "/${var.deployment_id}/pvault_service_license"
   recovery_window_in_days = 0
 }
 
@@ -14,7 +14,7 @@ resource "random_password" "pvault_service_admin_api_key" {
 }
 
 resource "aws_secretsmanager_secret" "pvault_service_admin_api_key" {
-  name                    = "/pvault/pvault_service_admin_api_key"
+  name                    = "/${var.deployment_id}/pvault_service_admin_api_key"
   recovery_window_in_days = 0
 }
 

@@ -1,5 +1,5 @@
 resource "aws_security_group" "apprunner_endpoint" {
-  name   = "apprunner-endpoint-sg"
+  name   = "apprunner-endpoint"
   vpc_id = local.vpc_id
 
   ingress {
@@ -12,7 +12,7 @@ resource "aws_security_group" "apprunner_endpoint" {
   }
 
   tags = {
-    "Name" = "apprunner_endpoint_sg"
+    "Name" = "apprunner_endpoint"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_vpc_endpoint" "apprunner_endpoint" {
 }
 
 resource "aws_security_group" "open" {
-  name   = "open-sg"
+  name   = "open"
   vpc_id = local.vpc_id
 
   egress {
@@ -49,19 +49,19 @@ resource "aws_security_group" "open" {
   }
 
   tags = {
-    "Name" = "open_sg"
+    "Name" = "open"
   }
 }
 
 # Allow the runner to access VPC resources - egress
 resource "aws_apprunner_vpc_connector" "pvault" {
-  vpc_connector_name = "pvault"
+  vpc_connector_name = var.deployment_id
   subnets            = local.private_subnet_ids
   security_groups    = [aws_security_group.open.id]
 }
 
 resource "aws_apprunner_service" "pvault" {
-  service_name = "pvault"
+  service_name = var.deployment_id
 
   instance_configuration {
     instance_role_arn = aws_iam_role.pvault.arn
@@ -71,7 +71,7 @@ resource "aws_apprunner_service" "pvault" {
     auto_deployments_enabled = false
     image_repository {
       image_repository_type = "ECR_PUBLIC"
-      image_identifier      = var.pvault_image
+      image_identifier      = "${var.pvault_repository}:${var.pvault_tag}"
       image_configuration {
         port = var.pvault_port
         runtime_environment_variables = {
@@ -115,7 +115,7 @@ resource "aws_apprunner_service" "pvault" {
 
 # Allow ingress to service from VPC Only
 resource "aws_apprunner_vpc_ingress_connection" "pvault" {
-  name        = "pvault"
+  name        = var.deployment_id
   service_arn = aws_apprunner_service.pvault.arn
 
   ingress_vpc_configuration {
