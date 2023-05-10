@@ -9,8 +9,8 @@ resource "aws_secretsmanager_secret_version" "pvault_service_license" {
 }
 
 resource "random_password" "pvault_service_admin_api_key" {
-  length  = 30
-  special = true
+  length  = 20
+  special = false
 }
 
 resource "aws_secretsmanager_secret" "pvault_service_admin_api_key" {
