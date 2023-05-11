@@ -11,35 +11,37 @@ variable "deployment_id" {
 }
 
 variable "create_vpc" {
-  type    = bool
-  default = true
+  description = "Controls if VPC should be created (it affects almost all resources)"
+  type        = bool
+  default     = true
 }
 
 variable "create_bastion" {
-  type    = bool
-  default = false
+  description = "Controls if a new EC2 bastion should be created in VPC"
+  type        = bool
+  default     = false
 }
 
 variable "vpc_id" {
-  description = "The existing VPC_ID"
+  description = "The existing VPC_ID in case that `create_vpc` is false"
   type        = string
   default     = ""
 }
 
 variable "private_subnet_ids" {
-  description = "The Private subnets where the Pvault will deploy"
+  description = "The IDs of the private subnets where the Pvault service will deploy"
   type        = list(string)
   default     = []
 }
 
 variable "database_subnet_ids" {
-  description = "The Database subnets where the RDS will deploy"
+  description = "The IDs if the Database subnets where the RDS will deploy"
   type        = list(string)
   default     = []
 }
 
 variable "allowed_cidr_blocks" {
-  description = "The subnets CIDRs which allowed to access the RDS"
+  description = "The subnets CIDRs which allowed to access the Pvault service"
   type        = list(string)
   default     = []
 }
