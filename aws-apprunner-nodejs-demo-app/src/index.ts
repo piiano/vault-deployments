@@ -2,16 +2,19 @@ import express from 'express';
 import axios from 'axios';
 import { VaultClient } from '@piiano/vault-client';
 
-
 const app = express();
 const port = 3000;
 
 const client = new VaultClient({
-  vaultURL: process.env.PVAULT_LISTEN_ADDR || "http://localhost:8123",
-  apiKey: process.env.PVAULT_ADMIN_API_KEY || "pvaultauth",
+  vaultURL: process.env.PVAULT_URL || "http://localhost:8123",
+  apiKey: process.env.PVAULT_API_KEY || "pvaultauth",
 });
 
 app.get('/', async (req, res) => {
+    res.send('Welcome to the demo app');
+});
+
+app.get('/pvault', async (req, res) => {
   try {
     // Example for API
     // const response = await axios.get<SystemInfo>('/api/pvlt/1.0/system/info/version', config);
@@ -31,4 +34,3 @@ app.get('/', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-

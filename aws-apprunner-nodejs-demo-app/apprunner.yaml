@@ -16,8 +16,8 @@ run:
     port: 3000
     env: APP_PORT  
   env:
-    - name: MY_VAR_EXAMPLE
-      value: "example"
+    - name: PVAULT_URL
+      value: "https://....."
   secrets:
-    - name: my-secret-TBD
-      value-from: "arn:aws:ssm:us-east-1:123456789012:parameter/parameter-name"
+    - name: PVAULT_API_KEY
+      value-from: "arn:aws:secretsmanager:...."
