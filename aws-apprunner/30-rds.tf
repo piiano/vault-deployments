@@ -81,8 +81,8 @@ resource "aws_secretsmanager_secret_version" "db_password" {
   secret_string = module.db.db_instance_password
 }
 
-resource "aws_ssm_parameter" "db_hostname" {
-  name  = "/${var.deployment_id}/db_hostname"
-  type  = "String"
-  value = module.db.db_instance_address
-}
+# resource "aws_ssm_parameter" "db_hostname" {
+#   name  = "/${var.deployment_id}/db_hostname"
+#   type  = "String"
+#   value = module.db.db_instance_address
+# }
