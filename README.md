@@ -34,5 +34,8 @@ This repository contains deployments for Vault in cloud environments.
 
 Each of these folders can be used independently to deploy Vault in its respective cloud and technology:
 
-1. [AWS AppRunner](./aws-apprunner)
-1. [AWS ECS](./aws-ecs)
+1. [AWS AppRunner](./aws-apprunner)  
+   Vault deployed in an AppRunner container. Provided is also a [demo application](./aws-apprunner-nodejs-demo-app) using another AppRunner container to demonstrate connecting to the Vault and running basic commands.
+
+1. [AWS ECS](./aws-ecs)  
+   Vault deployed in an ECS container.

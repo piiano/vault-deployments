@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "deployment_id" {
+  description = "The unique deployment id of this deployment"
+  type        = string
+  default     = "pvault"
+}
+
 variable "create_vpc" {
   type    = bool
   default = true
@@ -79,11 +85,18 @@ variable "rds_backup_retention_period" {
   default  = 7
 }
 
-variable "pvault_image" {
-  description = "Pvault image:tag public image"
+variable "pvault_repository" {
+  description = "Pvault repository public image"
   type        = string
-  default     = "public.ecr.aws/s4s5s6q8/pvault-server:1.2.2"
+  default     = "public.ecr.aws/s4s5s6q8/pvault-server"
 }
+
+variable "pvault_tag" {
+  description = "Pvault tag public image"
+  type        = string
+  default     = "1.4.0"
+}
+
 
 variable "pvault_port" {
   description = "Pvault application port number"

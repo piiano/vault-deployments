@@ -13,7 +13,7 @@ data "aws_ami" "amazon_linux_2" {
 
 resource "aws_security_group" "bastion" {
   count  = var.create_bastion ? 1 : 0
-  name   = "bastion-sg"
+  name   = "bastion"
   vpc_id = local.vpc_id
 
   egress {
@@ -25,13 +25,13 @@ resource "aws_security_group" "bastion" {
   }
 
   tags = {
-    "Name" = "bastion_sg"
+    "Name" = "bastion"
   }
 }
 
 resource "aws_iam_role" "bastion" {
   count = var.create_bastion ? 1 : 0
-  name  = "pvault-bastion-role"
+  name  = "${var.deployment_id}-bastion-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -45,12 +45,11 @@ resource "aws_iam_role" "bastion" {
       },
     ]
   })
-}
 
-resource "aws_iam_role_policy_attachment" "bastion" {
-  count      = var.create_bastion ? 1 : 0
-  role       = one(aws_iam_role.bastion).name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  ]
+
 }
 
 resource "aws_iam_instance_profile" "bastion" {
@@ -69,7 +68,7 @@ resource "aws_instance" "bastion" {
   user_data                   = templatefile("${path.module}/bastion.userdata.sh", {})
   user_data_replace_on_change = true
   tags = {
-    Name = "vault-bastion-instance"
+    Name = "${var.deployment_id}-bastion"
     Role = "bastion"
   }
 }
