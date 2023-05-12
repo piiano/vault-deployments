@@ -21,9 +21,8 @@ This application uses the Vault typescript SDK version 1.0.8.
 1. Open the AWS Console in the AppRunner section. For example, for `us-east-2`: https://us-east-2.console.aws.amazon.com/apprunner
 1. Click "Create service" and follow these steps.
 
-   1. Choose Source code repository
-
-      ![Step1](./resources/AppRunner-step1-auto.png)
+   1. Choose Source code repository and select manual mode as the `Deployment settings`.
+      ![Step1](./resources/AppRunner-step1-manual.png)
 
    1. Connect to Github and replace repository name with your own repository
 
@@ -33,27 +32,25 @@ This application uses the Vault typescript SDK version 1.0.8.
 
       ![step1c](./resources/AppRunner-connect-to-github.png)
 
-   1. Select automatic mode as the `Deployment settings`
-
 1. Select to use a [configuration file](apprunner.yaml) in the `build settings`.
 
    ![Step2](./resources/AppRunner-step2.png)
 
-1. Settings for step 3: `Configure service`.  
+1. Settings for step 3: `Configure service`.
 
    ![Step3](./resources/AppRunner-step3.png)
 
-1. Settings for step 3: `Networking`. Don't forget to **set the same VPC as the Vault** in the networking section.
-   
-   ![Step3](./resources/AppRunner-networking.png)
+1. Setting for step 3: `Health check` - keep defaults
 
-1. Setting for step 3: `Health check`
-   
    ![Step3](./resources/AppRunner-step3-health.png)
 
-1. Setting for step 3: `Security`
+1. Setting for step 3: `Security`. Choose the instance role `pvault-...` that was created using the terraform of the Vault AppRunner.
 
    ![Step3](./resources/AppRunner-step3-security.png)
+
+1. Settings for step 3: `Networking`. Don't forget to **set the same VPC as the Vault** in the networking section.
+
+   ![Step3](./resources/AppRunner-networking.png)
 
 1. Deploy!
 
@@ -65,13 +62,13 @@ The demo application connects to the Vault (which is also running in AppRunner) 
 
 Example:
 
-```
+````
 > curl https://<your magic prefix>.us-east-2.awsapprunner.com```
 Welcome to the demo app
 
 > curl https://<your magic prefix>.us-east-2.awsapprunner.com:3000/pvault
 {"vault_id":"179222318245416960","vault_version":"1.4.0.4798412847-ga4c13d8","db_schema_version":20230425092047}
-```
+````
 
 Similarly, it works directly from a web browser:
 ![WebTest](./resources/apprunner-web-test.jpg)
