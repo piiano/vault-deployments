@@ -5,10 +5,10 @@ build:
     pre-build:
       - npm install --global yarn
     build:    
-      - yarn -cwd aws-apprunner-nodejs-demo-app
-      - yarn -cwd aws-apprunner-nodejs-demo-app build
+      - yarn --cwd aws-apprunner-nodejs-demo-app
+      - yarn --cwd aws-apprunner-nodejs-demo-app build
 run:
-  command: yarn -cwd aws-apprunner-nodejs-demo-app start
+  command: yarn --cwd aws-apprunner-nodejs-demo-app start
   network: 
     port: 3000
   env:
