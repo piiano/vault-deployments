@@ -40,12 +40,15 @@ This application uses the Vault typescript SDK version 1.0.8.
    ![Step2](./resources/AppRunner-step2.png)
 
 1. Settings for step 3: `Configure service`.  
-   Don't forget to **set the same VPC as the Vault** in the networking section.
 
    ![Step3](./resources/AppRunner-step3.png)
 
-1. Setting for step 3: `Health check`
+1. Settings for step 3: `Networking`. Don't forget to **set the same VPC as the Vault** in the networking section.
+   
+   ![Step3](./resources/AppRunner-networking.png)
 
+1. Setting for step 3: `Health check`
+   
    ![Step3](./resources/AppRunner-step3-health.png)
 
 1. Setting for step 3: `Security`
