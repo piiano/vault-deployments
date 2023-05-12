@@ -20,21 +20,38 @@ This application uses the Vault typescript SDK version 1.0.8.
    1. Change `PVAULT_API_KEY` account number from the generic `123456789012` into your account number
 1. Open the AWS Console in the AppRunner section: https://us-east-2.console.aws.amazon.com/apprunner
 1. Click "Create service" and follow these steps.
+
    1. Choose Source code repository
+
       ![Step1](./resources/AppRunner-step1-auto.png)
+
    1. Connect to Github and replace repository name with your own repository
+
       ![step1b](./resources/AppRunner-step1-source.png)
+
    1. Instead of Piiano, you should have your own application (click Install) and it will pop up a connection to GitHub. Select your organization or yourself
+
       ![step1c](./resources/AppRunner-connect-to-github.png)
+
    1. Select automatic mode as the `Deployment settings`
+
 1. Select to use a [configuration file](apprunner.yaml) in the `build settings`.
+
    ![Step2](./resources/AppRunner-step2.png)
-1. Settings for step 3: `Configure service`:
+
+1. Settings for step 3: `Configure service`.  
+   Don't forget to **set the same VPC as the Vault** in the networking section.
+
    ![Step3](./resources/AppRunner-step3.png)
+
 1. Setting for step 3: `Health check`
+
    ![Step3](./resources/AppRunner-step3-health.png)
+
 1. Setting for step 3: `Security`
+
    ![Step3](./resources/AppRunner-step3-security.png)
+
 1. Deploy!
 
 ## Usage
