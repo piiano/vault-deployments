@@ -3,21 +3,17 @@ runtime: nodejs16
 build:
   commands:
     pre-build:
-      - yarn --cwd aws-apprunner-nodejs-demo-app start
+      - npm install --global yarn
     build:    
-      - yarn --cwd aws-apprunner-nodejs-demo-app && yarn --cwd aws-apprunner-nodejs-demo-app build
-  env:
-    - name: TBD
-      value: "TBD"
+      - yarn --cwd aws-apprunner-nodejs-demo-app
+      - yarn --cwd aws-apprunner-nodejs-demo-app build
 run:
-  runtime-version: 16.20.0
-  command: node index.ts
+  command: yarn --cwd aws-apprunner-nodejs-demo-app start
   network: 
     port: 3000
-    env: APP_PORT  
   env:
     - name: PVAULT_URL
-      value: "https://....."
+      value: "https://xxxxxxxxxx.us-east-2.awsapprunner.com"
   secrets:
     - name: PVAULT_API_KEY
-      value-from: "arn:aws:secretsmanager:...."
+      value-from: "arn:aws:secretsmanager:us-east-2:123456789012:secret:/pvault/pvault_service_admin_api_key-xxxxxx"
