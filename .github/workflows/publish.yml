@@ -1,0 +1,59 @@
+name: Publish
+run-name: ${{ github.workflow }} (${{ github.head_ref || github.ref_name }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      vault_version:
+        description: Vault version
+        required: true
+      bump-package:
+        description: Bump package version
+        type: choice
+        required: false
+        default: patch
+        options: [none, patch, minor, major]
+
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # By default, the ref is the commit hash that triggered the original workflow.
+          # Meaning it is missing changes that are committed by the workflow itself.
+          # Explicitly set ref to the branch name, so we pull the latest changes committed by the CI.
+          ref: ${{ github.ref_name }}
+          token: ${{ secrets.CICD_RELEASES_PAT }}
+
+      - name: Calculate versions
+        id: versions
+        run: |
+          source VERSION
+          echo "old_vault_version=${VAULT_VERSION}" >> $GITHUB_OUTPUT
+          echo "old_package_version=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+          if [[ "${{ inputs.bump-package }}" != "none" ]]; then
+            echo "package_version=$(npx --yes semver -i ${{ inputs.bump-package }} ${PACKAGE_VERSION})" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update aws-apprunner variable file
+        if: inputs.bump-package != 'none'
+        working-directory: aws-apprunner
+        run: sed -i "s/variable \"pvault_tag\" { default = \".*\" }/variable \"pvault_tag\" { default = \"${{ steps.versions.outputs.package_version }}\" }/g" 01-variables.tf
+
+      - name: Update aws-ecs variable file
+        if: inputs.bump-package != 'none'
+        working-directory: aws-ecs
+        run: sed -i "s/variable \"pvault_tag\" { default = \".*\" }/variable \"pvault_tag\" { default = \"${{ steps.versions.outputs.package_version }}\" }/g" 01-variables.tf
+
+      - name: Commit version changes and push
+        if: inputs.bump-package != 'none'
+        run: |
+          git config --global user.email "cicd@piiano.com"
+          git config --global user.name "Github Actions"
+          git add VERSION
+          git add aws-apprunner/01-variables.tf
+          git add aws-ecs/01-variables.tf
+          git commit -m "Update publish version to ${{ steps.versions.outputs.package_version }} and vault version to ${{ inputs.vault_version }}"
+          git push
