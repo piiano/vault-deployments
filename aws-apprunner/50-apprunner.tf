@@ -99,7 +99,7 @@ resource "aws_apprunner_service" "pvault" {
       vpc_connector_arn = aws_apprunner_vpc_connector.pvault.arn
     }
     ingress_configuration {
-      is_publicly_accessible = false
+      is_publicly_accessible = var.is_publically_accessible
     }
   }
 
@@ -115,6 +115,8 @@ resource "aws_apprunner_service" "pvault" {
 
 # Allow ingress to service from VPC Only
 resource "aws_apprunner_vpc_ingress_connection" "pvault" {
+  count = var.is_publically_accessible ? 0 : 1
+
   name        = var.deployment_id
   service_arn = aws_apprunner_service.pvault.arn
 

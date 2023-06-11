@@ -22,6 +22,12 @@ variable "create_bastion" {
   default     = false
 }
 
+variable "is_publically_accessible" {
+  description = "Controls if the Pvault service should be publically accessible"
+  type        = bool
+  default     = false
+}
+
 variable "vpc_id" {
   description = "The existing VPC_ID in case that `create_vpc` is false"
   type        = string
