@@ -86,7 +86,7 @@ resource "aws_apprunner_service" "pvault" {
         }
         runtime_environment_secrets = {
           PVAULT_DB_PASSWORD           = aws_secretsmanager_secret.db_password.arn
-          PVAULT_SERVICE_LICENSE       = aws_secretsmanager_secret.pvault_service_license.arn
+          PVAULT_SERVICE_LICENSE       = local.pvault_license_secret_arn
           PVAULT_SERVICE_ADMIN_API_KEY = aws_secretsmanager_secret.pvault_service_admin_api_key.arn
         }
       }
