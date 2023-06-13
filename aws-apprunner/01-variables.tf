@@ -22,6 +22,12 @@ variable "create_bastion" {
   default     = false
 }
 
+variable "is_publically_accessible" {
+  description = "Controls if the Pvault service should be publically accessible"
+  type        = bool
+  default     = false
+}
+
 variable "vpc_id" {
   description = "The existing VPC_ID in case that `create_vpc` is false"
   type        = string
@@ -100,11 +106,6 @@ variable "pvault_port" {
   default     = "8123"
 }
 
-variable "pvault_service_license" {
-  description = "Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers"
-  type        = string
-}
-
 variable "pvault_log_customer_identifier" {
   description = "Identifies the customer in all the observability platforms"
   type        = string
@@ -120,5 +121,33 @@ variable "create_client_bastion" {
   default = true
 }
 
+variable "create_secret_license" {
+  description = "Controls if the secret license should be created. If set to 'false', var.secret_arn_license must be set"
+  type        = bool
+  default     = true
+}
+
+variable "secret_arn_license" {
+  description = "The ARN of the Secrets Manager secret of Pvault license. If var.create_secret_license is set to 'true', this variable is ignored"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "pvault_service_license" {
+  description = "Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers. Cannot be set if var.create_secret_license is set to 'true'"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+locals {
+  # Validation: Either you let the module create the secret or you provide the ARN of an existing secret.
+  # tflint-ignore: terraform_unused_declarations
+  collision_license = (
+    (length(var.secret_arn_license) > 0 && length(var.pvault_service_license) > 0) ||
+    (length(var.secret_arn_license) == 0 && length(var.pvault_service_license) == 0)
+  ) ? tobool("Exactly one of var.secret_arn_license and var.pvault_service_license must be set") : true
+}
 
 # (variable "pvault_tag" {[^}]*default\s*=\s*")([^"]*)
