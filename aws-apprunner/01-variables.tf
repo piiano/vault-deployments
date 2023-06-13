@@ -93,13 +93,7 @@ variable "pvault_repository" {
   default     = "public.ecr.aws/s4s5s6q8/pvault-server"
 }
 
-variable "pvault_tag" {
-  description = "Pvault tag public image"
-  type        = string
-  default     = "1.4.0"
-}
-
-
+variable "pvault_tag" { default = "1.4.0" }
 variable "pvault_port" {
   description = "Pvault application port number"
   type        = string
@@ -125,3 +119,6 @@ variable "create_client_bastion" {
   type    = bool
   default = true
 }
+
+
+# (variable "pvault_tag" {[^}]*default\s*=\s*")([^"]*)

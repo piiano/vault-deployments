@@ -1,0 +1,98 @@
+name: Publish
+run-name: ${{ github.workflow }} (${{ github.head_ref || github.ref_name }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      vault_version:
+        description: "Vault version"
+        required: true
+        type: string
+      bump-package:
+        description: |-
+          How to bump this package version:
+          - `none` - do not bump version
+          - `patch` - bump patch version
+          - `minor` - bump minor version
+          - `major` - bump major version
+        default: none
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
+      update-product:
+        description: "Update `apprunner` or `ecs` or `all`"
+        required: false
+        default: "all"
+
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CICD_RELEASES_PAT }}
+
+      - name: Calculate versions
+        id: versions
+        run: |
+          apprunner_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-apprunner/01-variables.tf`
+          ecs_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-ecs/01-variables.tf`
+          new_apprunner_version=`npx --yes semver -i ${{ inputs.bump-package }} $apprunner_version`
+          new_ecs_version=`npx --yes semver -i ${{ inputs.bump-package }} $ecs_version`
+
+          echo "old_apprunner_version=${apprunner_version}" >> $GITHUB_OUTPUT
+          echo "old_ecs_version=${ecs_version}" >> $GITHUB_OUTPUT
+          echo "new_apprunner_version=${new_apprunner_version}" >> $GITHUB_OUTPUT
+          echo "new_ecs_version=${new_ecs_version}" >> $GITHUB_OUTPUT
+
+          if [[ "${{ inputs.bump-package }}" != "none" ]]; then
+            echo "Potentially upgrade to: apprunner $new_apprunner_version, ecs $new_ecs_version"
+          else
+            echo "Versions calculated but not requested to bump any version"
+          fi
+    
+      - name: Update aws-apprunner files
+        env:
+          VVER: compatible with Vault version # Vault version
+          AVER: This application version is # Application version
+        if: >
+          github.event_name == 'workflow_dispatch' && inputs.bump-package != 'none' &&
+          (inputs.update-product == 'all' || inputs.update-product == 'apprunner')
+        working-directory: aws-apprunner
+        run: |
+          sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' 01-variables.tf
+          sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
+          sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_apprunner_version }}|g" README.md
+
+      - name: Update aws-ecs files
+        env:
+          VVER: compatible with Vault version # Vault version
+          AVER: This application version is # Application version
+        if: >
+          github.event_name == 'workflow_dispatch' && inputs.bump-package != 'none' &&
+          (inputs.update-product == 'all' || inputs.update-product == 'ecs')
+        working-directory: aws-ecs
+        run: |
+          sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' 01-variables.tf
+          sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
+          sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_ecs_version }}|g" README.md
+
+      - name: Commit version changes and push
+        if: github.event_name == 'workflow_dispatch' && github.event_name != 'push'
+        run: |
+          git config --global user.email "cicd@piiano.com"
+          git config --global user.name "Github Actions"
+          git_status=$(git status -s)
+          if [ -n "$git_status" ]; then
+            echo "There are changes to commit"
+            git add aws-apprunner/01-variables.tf aws-apprunner/README.md
+            git add aws-ecs/01-variables.tf aws-ecs/README.md
+            git commit -m "Update publish bump=${{ inputs.bump-package }} with vault version ${{ inputs.vault_version }}"
+            git push  
+          else
+            echo "No changes to commit"
+          fi

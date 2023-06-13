@@ -2,6 +2,8 @@
 
 This module deploys Piiano Vault on a given AWS region. It will outputs the private Vault URL post deployment.
 
+This application version is 1.0.0 and is compatible with Vault version 1.6.0 .
+
 ## Solution Architecture
 
 Vault is deployed as a single ECS cluster/container regional service. The service is deployed in the ECS VPC and is configured for private access only from the `pvault-vpc`.

@@ -106,11 +106,7 @@ variable "pvault_repository" {
   default     = "piiano/pvault-server"
 }
 
-variable "pvault_tag" {
-  description = "Pvault tag public image"
-  type        = string
-  default     = "1.3.1"
-}
+variable "pvault_tag" { default = "1.4.0" }
 
 variable "pvault_port" {
   description = "Pvault application port number"
