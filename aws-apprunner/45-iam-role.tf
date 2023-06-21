@@ -28,9 +28,10 @@ resource "aws_iam_role" "pvault" {
           Action = [
             "secretsmanager:GetSecretValue",
           ]
-          Resource = [
-            "arn:${data.aws_arn.db_password.partition}:${data.aws_arn.db_password.service}:${data.aws_arn.db_password.region}:${data.aws_arn.db_password.account}:secret:/${var.deployment_id}/*"
-          ]
+          Resource = compact([
+            "arn:${data.aws_arn.db_password.partition}:${data.aws_arn.db_password.service}:${data.aws_arn.db_password.region}:${data.aws_arn.db_password.account}:secret:/${var.deployment_id}/*",
+            var.secret_arn_license,
+          ])
         },
       ]
     })
