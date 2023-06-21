@@ -99,7 +99,7 @@ variable "pvault_repository" {
   default     = "public.ecr.aws/s4s5s6q8/pvault-server"
 }
 
-variable "pvault_tag" { default = "1.4.0" }
+variable "pvault_tag" { default = "1.6.0" }
 variable "pvault_port" {
   description = "Pvault application port number"
   type        = string
@@ -139,6 +139,18 @@ variable "pvault_service_license" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "instance_cpu" {
+  description = "The number of CPU units for the Pvault instance. See https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apprunner_service#instance-configuration for more details."
+  type        = number
+  default     = 1024
+}
+
+variable "instance_memory" {
+  description = "The amount of memory in MiB for the Pvault instance. See https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apprunner_service#instance-configuration for more details."
+  type        = number
+  default     = 2048
 }
 
 locals {

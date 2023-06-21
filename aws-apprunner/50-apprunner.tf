@@ -65,6 +65,8 @@ resource "aws_apprunner_service" "pvault" {
 
   instance_configuration {
     instance_role_arn = aws_iam_role.pvault.arn
+    cpu               = var.instance_cpu
+    memory            = var.instance_memory
   }
 
   source_configuration {
