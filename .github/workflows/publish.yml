@@ -34,6 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: ${{ github.ref_name }}
           token: ${{ secrets.CICD_RELEASES_PAT }}
 
       - name: Calculate versions
