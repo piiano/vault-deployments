@@ -145,7 +145,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_pvault_port"></a> [pvault\_port](#input\_pvault\_port) | Pvault application port number | `string` | `"8123"` | no |
 | <a name="input_pvault_repository"></a> [pvault\_repository](#input\_pvault\_repository) | Pvault repository public image | `string` | `"piiano/pvault-server"` | no |
 | <a name="input_pvault_service_license"></a> [pvault\_service\_license](#input\_pvault\_service\_license) | Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers | `string` | n/a | yes |
-| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | Pvault tag public image | `string` | `"1.3.1"` | no |
+| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | Pvault version (example) | `string` | `"1.6.1"` | no |
 | <a name="input_rds_allocated_storage"></a> [rds\_allocated\_storage](#input\_rds\_allocated\_storage) | Pvault RDS initial allocated storage in GB | `number` | `"20"` | no |
 | <a name="input_rds_backup_retention_period"></a> [rds\_backup\_retention\_period](#input\_rds\_backup\_retention\_period) | The days to retain backups for the RDS | `number` | `30` | no |
 | <a name="input_rds_db_name"></a> [rds\_db\_name](#input\_rds\_db\_name) | Pvault RDS database name | `string` | `"pvault"` | no |

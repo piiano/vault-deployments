@@ -68,6 +68,7 @@ jobs:
           sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' 01-variables.tf
           sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
           sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_apprunner_version }}|g" README.md
+          sed -i -E "s|pvault-cli:[0-9]+\.[0-9]+\.[0-9]+|pvault-cli:${{ inputs.vault_version }}|g" README.md
 
       - name: Update aws-ecs files
         env:
@@ -81,6 +82,7 @@ jobs:
           sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' 01-variables.tf
           sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
           sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_ecs_version }}|g" README.md
+          sed -i -E "s|pvault-cli:[0-9]+\.[0-9]+\.[0-9]+|pvault-cli:${{ inputs.vault_version }}|g" README.md
 
       - name: Commit version changes and push
         if: github.event_name == 'workflow_dispatch' && github.event_name != 'push'
