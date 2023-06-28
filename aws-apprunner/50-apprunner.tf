@@ -76,8 +76,8 @@ resource "aws_apprunner_service" "pvault" {
       image_identifier      = "${var.pvault_repository}:${var.pvault_tag}"
       image_configuration {
         port = var.pvault_port
-        runtime_environment_variables = {
-          PVAULT_DEVMODE                 = "1"
+        runtime_environment_variables = merge(var.pvault_env_vars, {
+          PVAULT_DEVMODE                 = var.pvault_devmode ? "1" : "0"
           PVAULT_DB_HOSTNAME             = module.db.db_instance_address
           PVAULT_DB_NAME                 = var.rds_db_name
           PVAULT_DB_USER                 = var.rds_username
@@ -85,7 +85,8 @@ resource "aws_apprunner_service" "pvault" {
           PVAULT_LOG_CUSTOMER_IDENTIFIER = var.pvault_log_customer_identifier
           PVAULT_LOG_CUSTOMER_ENV        = var.pvault_log_customer_env
           PVAULT_KMS_URI                 = "aws-kms://${aws_kms_key.pvault.arn}"
-        }
+        })
+
         runtime_environment_secrets = {
           PVAULT_DB_PASSWORD           = aws_secretsmanager_secret.db_password.arn
           PVAULT_SERVICE_LICENSE       = local.pvault_license_secret_arn
