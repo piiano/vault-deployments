@@ -17,3 +17,7 @@ output "pvault_api_key" {
 output "apprunner_service_arn" {
   value = aws_apprunner_service.pvault.arn
 }
+
+output "bastion_instance_id" {
+  value = var.create_bastion ? aws_instance.bastion[0].id : null
+}
