@@ -159,6 +159,12 @@ variable "pvault_devmode" {
   default     = false
 }
 
+variable "pvault_admin_may_read_data" {
+  description = "Whether Admin is allowed to read data. See https://piiano.com/docs/guides/configure/environment-variables#service-and-features for more details."
+  type        = bool
+  default     = false
+}
+
 variable "pvault_env_vars" {
   description = "A map of environment variables to set for the Pvault service. See https://piiano.com/docs/guides/configure/environment-variables for more details."
   type        = map(string)
