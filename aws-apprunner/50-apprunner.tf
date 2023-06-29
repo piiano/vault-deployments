@@ -76,16 +76,20 @@ resource "aws_apprunner_service" "pvault" {
       image_identifier      = "${var.pvault_repository}:${var.pvault_tag}"
       image_configuration {
         port = var.pvault_port
-        runtime_environment_variables = {
-          PVAULT_DEVMODE                 = "1"
-          PVAULT_DB_HOSTNAME             = module.db.db_instance_address
-          PVAULT_DB_NAME                 = var.rds_db_name
-          PVAULT_DB_USER                 = var.rds_username
-          PVAULT_DB_PORT                 = var.rds_port
-          PVAULT_LOG_CUSTOMER_IDENTIFIER = var.pvault_log_customer_identifier
-          PVAULT_LOG_CUSTOMER_ENV        = var.pvault_log_customer_env
-          PVAULT_KMS_URI                 = "aws-kms://${aws_kms_key.pvault.arn}"
-        }
+        runtime_environment_variables = merge(var.pvault_env_vars, {
+          PVAULT_DEVMODE                     = var.pvault_devmode ? "1" : "0"
+          PVAULT_TLS_ENABLE                  = "0" # TLS disabled because AppRunner is handling TLS.
+          PVAULT_DB_REQUIRE_TLS              = "0" # It is difficult to get the crtificate chain for the RDS instance. So, disabling TLS for now. Will change the tls mode later by verifying cert validity instead.
+          PVAULT_DB_HOSTNAME                 = module.db.db_instance_address
+          PVAULT_DB_NAME                     = var.rds_db_name
+          PVAULT_DB_USER                     = var.rds_username
+          PVAULT_DB_PORT                     = var.rds_port
+          PVAULT_LOG_CUSTOMER_IDENTIFIER     = var.pvault_log_customer_identifier
+          PVAULT_LOG_CUSTOMER_ENV            = var.pvault_log_customer_env
+          PVAULT_KMS_URI                     = "aws-kms://${aws_kms_key.pvault.arn}"
+          PVAULT_SERVICE_ADMIN_MAY_READ_DATA = var.pvault_admin_may_read_data ? "1" : "0"
+        })
+
         runtime_environment_secrets = {
           PVAULT_DB_PASSWORD           = aws_secretsmanager_secret.db_password.arn
           PVAULT_SERVICE_LICENSE       = local.pvault_license_secret_arn

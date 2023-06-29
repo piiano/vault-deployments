@@ -32,59 +32,62 @@ resource "aws_security_group" "service" {
 resource "aws_ecs_task_definition" "pvault" {
   family = "${var.deployment_id}-task"
 
-  container_definitions = <<EOF
-  [
-    {
-      "name": "${var.deployment_id}-container",
-      "image": "${var.pvault_repository}:${var.pvault_tag}",
-      "entryPoint": [],
-      "environment": [
-        {"name": "PVAULT_DEVMODE", "value": "1"},
-        {"name": "PVAULT_DB_HOSTNAME", "value": "${module.db.db_instance_address}"},
-        {"name": "PVAULT_DB_NAME", "value": "${var.rds_db_name}"},
-        {"name": "PVAULT_DB_USER", "value": "${var.rds_username}"},
-        {"name": "PVAULT_DB_PORT", "value": "${var.rds_port}"},
-        {"name": "PVAULT_LOG_CUSTOMER_IDENTIFIER", "value": "${var.pvault_log_customer_identifier}"},
-        {"name": "PVAULT_LOG_CUSTOMER_ENV", "value": "${var.pvault_log_customer_env}"},
-        {"name": "PVAULT_KMS_URI", "value": "aws-kms://${aws_kms_key.pvault.arn}"}
-      ],
-      "secrets": [
-        {"name": "PVAULT_DB_PASSWORD", "valueFrom": "${aws_secretsmanager_secret.db_password.arn}"},
-        {"name": "PVAULT_SERVICE_LICENSE", "valueFrom": "${aws_secretsmanager_secret.pvault_service_license.arn}"},
-        {"name": "PVAULT_SERVICE_ADMIN_API_KEY", "valueFrom": "${aws_secretsmanager_secret.pvault_service_admin_api_key.arn}"}
-      ],
-      "essential": true,
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "${aws_cloudwatch_log_group.pvault.name}",
-          "awslogs-region": "${var.aws_region}",
-          "awslogs-stream-prefix": "pvault"
-        }
-      },
-      "portMappings": [
-        {
-          "containerPort": 8123,
-          "hostPort": 8123,
-          "protocol": "tcp",
-          "name": "api"
-        }
-      ],
-      "healthCheck": {
-          "command": [
-              "CMD-SHELL",
-	        "wget --spider localhost:8123/api/pvlt/1.0/ctl/info/health"
+  container_definitions = jsonencode(
+    [
+      {
+        name       = "${var.deployment_id}-container",
+        image      = "${var.pvault_repository}:${var.pvault_tag}",
+        entryPoint = [],
+        environment = [for k, v in merge(var.pvault_env_vars, {
+          PVAULT_DEVMODE                     = var.pvault_devmode ? "1" : "0"
+          PVAULT_TLS_ENABLE                  = "0" # TLS disabled because ALB is handling TLS.
+          PVAULT_DB_REQUIRE_TLS              = "0" # It is difficult to get the crtificate chain for the RDS instance. So, disabling TLS for now. Will change the tls mode later by verifying cert validity instead.
+          PVAULT_DB_HOSTNAME                 = module.db.db_instance_address
+          PVAULT_DB_NAME                     = var.rds_db_name
+          PVAULT_DB_USER                     = var.rds_username
+          PVAULT_DB_PORT                     = var.rds_port
+          PVAULT_LOG_CUSTOMER_IDENTIFIER     = var.pvault_log_customer_identifier
+          PVAULT_LOG_CUSTOMER_ENV            = var.pvault_log_customer_env
+          PVAULT_KMS_URI                     = "aws-kms://${aws_kms_key.pvault.arn}"
+          PVAULT_SERVICE_ADMIN_MAY_READ_DATA = var.pvault_admin_may_read_data ? "1" : "0"
+        }) : { "name" = k, "value" = v }],
+        secrets = [
+          { "name" : "PVAULT_DB_PASSWORD", "valueFrom" : aws_secretsmanager_secret.db_password.arn },
+          { "name" : "PVAULT_SERVICE_LICENSE", "valueFrom" : aws_secretsmanager_secret.pvault_service_license.arn },
+          { "name" : "PVAULT_SERVICE_ADMIN_API_KEY", "valueFrom" : aws_secretsmanager_secret.pvault_service_admin_api_key.arn }
+        ],
+        essential = true,
+        logConfiguration = {
+          "logDriver" : "awslogs",
+          "options" : {
+            "awslogs-group" : aws_cloudwatch_log_group.pvault.name,
+            "awslogs-region" : var.aws_region,
+            "awslogs-stream-prefix" : "pvault"
+          }
+        },
+        portMappings = [
+          {
+            "containerPort" : 8123,
+            "hostPort" : 8123,
+            "protocol" : "tcp",
+            "name" : "api"
+          }
+        ],
+        healthCheck = {
+          "command" : [
+            "CMD-SHELL",
+            "wget --spider localhost:8123/api/pvlt/1.0/ctl/info/health"
           ],
-          "interval": 15,
-          "timeout": 5,
-          "retries": 3
-      },
-      "cpu": 256,
-      "memory": 512,
-      "networkMode": "awsvpc"
-    }
-  ]
-  EOF
+          "interval" : 15,
+          "timeout" : 5,
+          "retries" : 3
+        },
+        cpu         = 256,
+        memory      = 512,
+        networkMode = "awsvpc"
+      }
+    ]
+  )
 
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"

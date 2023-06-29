@@ -153,6 +153,24 @@ variable "instance_memory" {
   default     = 2048
 }
 
+variable "pvault_devmode" {
+  description = "Enable devmode for Pvault. See https://piiano.com/docs/guides/configure/environment-variables#production-and-development-mode for more details."
+  type        = bool
+  default     = false
+}
+
+variable "pvault_admin_may_read_data" {
+  description = "Whether Admin is allowed to read data. See https://piiano.com/docs/guides/configure/environment-variables#service-and-features for more details."
+  type        = bool
+  default     = false
+}
+
+variable "pvault_env_vars" {
+  description = "A map of environment variables to set for the Pvault service. See https://piiano.com/docs/guides/configure/environment-variables for more details."
+  type        = map(string)
+  default     = {}
+}
+
 locals {
   # Validation: Either you let the module create the secret or you provide the ARN of an existing secret.
   # tflint-ignore: terraform_unused_declarations
