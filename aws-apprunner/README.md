@@ -42,14 +42,23 @@ The terraform parameters can be overridden by updating the .tfvars file or by co
 
 ## Usage
 
+### Module
+
 ```hcl
 module "pvault" {
-  source               = "./aws-apprunner"
+  source                 = "github.com/piiano/vault-deployments//aws-apprunner"
   pvault_service_license = "eyJhbGc..."
 }
 ```
 
-### Installation
+### Standalone project
+
+If you want to use the provided Terraform module directly, please follow these steps:
+
+1. Clone the repository - `git clone git@github.com:piiano/vault-deployments.git`
+2. Uncomment the `provider "aws"` block in `02-provider.tf` file.
+3. Change directory to the AppRunner module directory - `cd aws-apprunner`
+4. Run the following commands:
 
 ```sh
 terraform init
