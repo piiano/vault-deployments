@@ -38,16 +38,16 @@ resource "aws_ecs_task_definition" "pvault" {
         name       = "${var.deployment_id}-container",
         image      = "${var.pvault_repository}:${var.pvault_tag}",
         entryPoint = [],
-        environment = concat([for k, v in var.pvault_env_vars : { "name" = k, "value" = v }], [
-          { "name" : "PVAULT_DEVMODE", "value" : var.pvault_devmode ? "1" : "0" },
-          { "name" : "PVAULT_DB_HOSTNAME", "value" : module.db.db_instance_address },
-          { "name" : "PVAULT_DB_NAME", "value" : var.rds_db_name },
-          { "name" : "PVAULT_DB_USER", "value" : var.rds_username },
-          { "name" : "PVAULT_DB_PORT", "value" : var.rds_port },
-          { "name" : "PVAULT_LOG_CUSTOMER_IDENTIFIER", "value" : var.pvault_log_customer_identifier },
-          { "name" : "PVAULT_LOG_CUSTOMER_ENV", "value" : var.pvault_log_customer_env },
-          { "name" : "PVAULT_KMS_URI", "value" : "aws-kms://${aws_kms_key.pvault.arn}" }
-        ]),
+        environment = [for k, v in merge(var.pvault_env_vars, {
+          PVAULT_DEVMODE                 = var.pvault_devmode ? "1" : "0"
+          PVAULT_DB_HOSTNAME             = module.db.db_instance_address
+          PVAULT_DB_NAME                 = var.rds_db_name
+          PVAULT_DB_USER                 = var.rds_username
+          PVAULT_DB_PORT                 = var.rds_port
+          PVAULT_LOG_CUSTOMER_IDENTIFIER = var.pvault_log_customer_identifier
+          PVAULT_LOG_CUSTOMER_ENV        = var.pvault_log_customer_env
+          PVAULT_KMS_URI                 = "aws-kms://${aws_kms_key.pvault.arn}"
+        }) : { "name" = k, "value" = v }],
         secrets = [
           { "name" : "PVAULT_DB_PASSWORD", "valueFrom" : aws_secretsmanager_secret.db_password.arn },
           { "name" : "PVAULT_SERVICE_LICENSE", "valueFrom" : aws_secretsmanager_secret.pvault_service_license.arn },
