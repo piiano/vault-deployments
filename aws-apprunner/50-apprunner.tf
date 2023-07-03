@@ -11,6 +11,10 @@ resource "aws_security_group" "apprunner_endpoint" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = {
     "Name" = "apprunner_endpoint"
   }
@@ -58,6 +62,10 @@ resource "aws_apprunner_vpc_connector" "pvault" {
   vpc_connector_name = var.deployment_id
   subnets            = local.private_subnet_ids
   security_groups    = [aws_security_group.open.id]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_apprunner_service" "pvault" {

@@ -10,6 +10,10 @@ resource "aws_security_group" "rds" {
     cidr_blocks = local.allowed_cidr_blocks
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = {
     "Name" = "rds"
   }
