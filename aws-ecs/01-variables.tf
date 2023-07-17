@@ -106,7 +106,7 @@ variable "pvault_repository" {
   default     = "piiano/pvault-server"
 }
 
-variable "pvault_tag" { default = "1.7.1" }
+variable "pvault_tag" { default = "1.8.0" }
 
 variable "pvault_port" {
   description = "Pvault application port number"
