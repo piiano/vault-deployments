@@ -25,8 +25,8 @@ Each of these folders can be used independently to deploy Vault in its respectiv
 1. [AWS ECS](./aws-ecs)  
    Vault deployed in an ECS container.
 
-1. [GCP cloud run](./gcp-cloud-run)  
-   Vault deployed in GCP with cloud run.
+1. [GCP Cloud Run](./gcp-cloud-run)  
+   Vault deployed in GCP Cloud Run.
 
 # About Piiano Vault
 
