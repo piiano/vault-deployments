@@ -45,6 +45,13 @@ module "pvault" {
 
 ### Installation
 
+Mandatory Terraform variables include:
+* `client_region` - the GCP region to install the Cloud Run on.
+* `deployment_id` - an informative string to name this deployment. You can install multiple deployment on the same region.
+* `pvault_log_customer_identifier` - your name as a customer to identify your logs when requesting support from Piiano.
+* `pvault_log_customer_env` - your environment type, e.g. production,staging,dev or ci
+* `vault_license` - a valid license 
+
 `cloudresourcemanager.googleapis.com` API service must be enabled. Enable it from the [Cloud Resources Manager](https://console.cloud.google.com/apis/api/cloudresourcemanager.googleapis.com/metrics).
 
 ```bash
