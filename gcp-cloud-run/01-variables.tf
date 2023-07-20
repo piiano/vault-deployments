@@ -5,7 +5,6 @@
 variable "project" {
   description = "GCP Project ID where resources will be deployed"
   type        = string
-  default     = "vault-on-cloudrun-poc"
 }
 
 variable "env" {

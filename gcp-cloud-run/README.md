@@ -81,9 +81,7 @@ alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.7.1"
 pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager>' selftest basic
 ```
 
-:::info
-Note that the Virtual Machine will suspend itself after a period of inactivity. You can resume it from the Cloud Console or command line.
-:::
+:information_source: Note that the Virtual Machine will suspend itself after a period of inactivity. You can resume it from the Cloud Console or command line.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
