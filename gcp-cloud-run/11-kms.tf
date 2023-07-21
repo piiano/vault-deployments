@@ -3,7 +3,7 @@
 ### KMS ###
 ###########
 resource "google_kms_key_ring" "db_keyring" {
-  name       = "db-vault-${var.kms_ring_name}"
+  name       = "${var.deployment_id}-db-vault-${var.kms_ring_name}"
   location   = local.db_region
   depends_on = [google_project_service.apis]
 }
@@ -15,13 +15,13 @@ resource "google_kms_key_ring" "vault_keyring" {
 }
 
 resource "google_kms_crypto_key" "db-encryption-key" {
-  name     = var.db_kms_key_name
+  name     = "${var.deployment_id}-${var.db_kms_key_name}"
   key_ring = google_kms_key_ring.db_keyring.id
   purpose  = "ENCRYPT_DECRYPT"
 }
 
 resource "google_kms_crypto_key" "vault-encryption-key" {
-  name     = var.vault_kms_key_name
+  name     = "${var.deployment_id}-${var.vault_kms_key_name}"
   key_ring = google_kms_key_ring.vault_keyring.id
   purpose  = "ENCRYPT_DECRYPT"
 }
