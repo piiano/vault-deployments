@@ -45,7 +45,22 @@ module "vpc" {
   project_id                             = var.project
   subnets                                = concat(local.subnets)
   routes                                 = var.routes
-  firewall_rules                         = var.firewall
+  firewall_rules                         = [
+    for f in var.firewall : {
+      name                    = "${var.deployment_id}-${f.name}"
+      direction               = f.direction
+      priority                = lookup(f, "priority", null)
+      description             = lookup(f, "description", null)
+      ranges                  = lookup(f, "ranges", null)
+      source_tags             = lookup(f, "source_tags", null)
+      source_service_accounts = lookup(f, "source_service_accounts", null)
+      target_tags             = lookup(f, "target_tags", null)
+      target_service_accounts = lookup(f, "target_service_accounts", null)
+      allow                   = lookup(f, "allow", [])
+      deny                    = lookup(f, "deny", [])
+      log_config              = lookup(f, "log_config", null)
+    }
+  ]
   auto_create_subnetworks                = false
   delete_default_internet_gateway_routes = true
 
