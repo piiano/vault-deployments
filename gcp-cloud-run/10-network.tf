@@ -44,7 +44,14 @@ module "vpc" {
   routing_mode                           = "GLOBAL"
   project_id                             = var.project
   subnets                                = concat(local.subnets)
-  routes                                 = var.routes
+  routes                                 = [
+    for r in var.routes : {
+      name              = "${var.deployment_id}-${r.name}"
+      description       = lookup(r, "description", null)
+      destination_range = lookup(r, "destination_range", null)
+      next_hop_internet = lookup(r, "next_hop_internet", null)
+    }
+  ]
   firewall_rules                         = [
     for f in var.firewall : {
       name                    = "${var.deployment_id}-${f.name}"

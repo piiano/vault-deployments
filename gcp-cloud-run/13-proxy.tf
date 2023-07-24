@@ -47,7 +47,7 @@ resource "google_cloud_run_service" "nginx_proxy" {
 
 resource "google_service_account" "proxy_sa" {
   account_id   = "${var.deployment_id}-vault-proxy"
-  display_name = "${var.deployment_id} proxy service account"
+  display_name = "${var.deployment_id}-proxy service account"
 }
 
 resource "google_project_iam_member" "vault_client" {

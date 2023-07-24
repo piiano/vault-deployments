@@ -11,7 +11,7 @@ locals {
 
 resource "google_service_account" "pvault-cli-sa" {
   account_id   = "${var.deployment_id}-pvault-cli"
-  display_name = "${var.deployment_id} pvault-cli service account"
+  display_name = "${var.deployment_id}-pvault-cli service account"
 }
 
 resource "google_compute_instance" "vault-cli" {

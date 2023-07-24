@@ -107,8 +107,8 @@ resource "google_cloud_run_service" "pvault-server" {
 }
 
 resource "google_service_account" "pvault-server-sa" {
-  account_id   = "pvault-server"
-  display_name = "pvault-server service account"
+  account_id   = "${var.deployment_id}-pvault-server"
+  display_name = "${var.deployment_id}-pvault-server service account"
 }
 
 resource "google_project_iam_member" "pvault_sql_client" {
