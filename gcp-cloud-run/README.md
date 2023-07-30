@@ -6,7 +6,7 @@ This application version is 1.0.0 and is compatible with Vault version 1.7.1 .
 
 ## Solution Architecture
 
-Vault is deployed as a single Cloud Run regional service. The service is deployed in the Cloud Run VPC (network) and is configured for private access only from the network named by default `vpc-private-piiano`. **TBD**
+Vault is deployed as a single Cloud Run regional service. The service is deployed in the Cloud Run VPC (network) and is configured for private access only from the network named by default `<deployment-id>-vpc-private-piiano`.
 Internally, Vault communicates with a CloudSQL that resides in the database subnet.
 
 
@@ -20,7 +20,7 @@ The following components are installed by default (some are optional):
 | ------------- | --------------------------------------------- | ----------------------------------------------------------- |
 | GAR           | Artifact Registry                             | For hosting the Vault's docker images                       |
 | KMS           | Key Management Service                        | Holds Vault's key encryption key (KEK)                      |
-| VPC/Network   | **TBD**                                           |                                                             |
+| VPC/Network   | Private Network for the Vault                 | Created with its own dedicated subnet                       |
 | Bastion       | bastion Virtual Machine instance              | Optional - For testing. Created in the network of the Vault |
 | CloudSQL      | GCP Managed Postgres instance                 | The application database                                    |
 | Cloud Run     | Managed Cloud Run deployment of Piiano Vault  |                                                             |
@@ -38,7 +38,7 @@ The terraform parameters can be overridden by updating the .tfvars file or by co
 
 ```hcl
 module "pvault" {
-  source        = "./gcp-apprunner"
+  source        = "./gcp-cloud-run"
   vault_license = "eyJhbGc..."
 }
 ```
@@ -67,11 +67,9 @@ Review the plan and if all resources are approves. enter `yes` to apply the chan
 
 When a successful installation completes, it shows the following output:
 
-**TBD**
-
 ```sh
-authtoken = "Secret Manager: /pvault/pvault_service_admin_api_key --> retrieve value"
-vault_url = "https://myservice-<random url>-ew.a.run.app"
+authtoken = "Secret Manager: `deployment id`/admin_api_key --> retrieve value"
+vault_url = "https://`deployment id`-pvault-server-<random chars>-uc.a.run.app"
 ```
 
 To check that the Vault is working as expected run the following from inside the application VPC. Optionally, the deployment script can deploy a bastion machine for this purpose:
@@ -172,7 +170,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_image"></a> [image](#input\_image) | Vault server image name | `string` | `"us-central1-docker.pkg.dev/piiano/docker/pvault-server"` | no |
 | <a name="input_kms_ring_name"></a> [kms\_ring\_name](#input\_kms\_ring\_name) | KMS Ring name | `string` | `"key-ring"` | no |
 | <a name="input_network"></a> [network](#input\_network) | VPC Network name | `string` | `"vpc-private-piiano"` | no |
-| <a name="input_project"></a> [project](#input\_project) | GCP Project ID where resources will be deployed | `string` | `"vault-on-cloudrun-poc"` | no |
+| <a name="input_project"></a> [project](#input\_project) | GCP Project ID where resources will be deployed | `string` | n/a | yes |
 | <a name="input_proxy_image"></a> [proxy\_image](#input\_proxy\_image) | Proxy Docker image | `string` | `"us-central1-docker.pkg.dev/piiano/docker/nginx-proxy:3"` | no |
 | <a name="input_proxy_vault_serverless_connector_range"></a> [proxy\_vault\_serverless\_connector\_range](#input\_proxy\_vault\_serverless\_connector\_range) | Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC) | `string` | `"10.8.3.0/28"` | no |
 | <a name="input_pvault_log_customer_env"></a> [pvault\_log\_customer\_env](#input\_pvault\_log\_customer\_env) | Identifies the environment in all the observability platforms. Recommended values are PRODUCTION, STAGING, and DEV | `string` | n/a | yes |
@@ -184,11 +182,13 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_vault_cli_zone"></a> [vault\_cli\_zone](#input\_vault\_cli\_zone) | Zone where Vault CLI will be deployed | `string` | `null` | no |
 | <a name="input_vault_kms_key_name"></a> [vault\_kms\_key\_name](#input\_vault\_kms\_key\_name) | KMS key name | `string` | `"vault-key"` | no |
 | <a name="input_vault_license"></a> [vault\_license](#input\_vault\_license) | Vault server license token | `string` | n/a | yes |
-| <a name="input_vault_region"></a> [vault\_region](#input\_vault\_region) | Vault Region. if empty fallback to default region | `string` | `null` | no |
+| <a name="input_vault_region"></a> [vault\_region](#input\_vault\_region) | Vault Region. if empty fallback to default region | `string` | n/a | yes |
 | <a name="input_vault_sql_serverless_connector_range"></a> [vault\_sql\_serverless\_connector\_range](#input\_vault\_sql\_serverless\_connector\_range) | Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC) | `string` | `"10.8.0.0/28"` | no |
-| <a name="input_vault_version"></a> [vault\_version](#input\_vault\_version) | Vault version | `string` | `"1.7.1"` | no |
+| <a name="input_vault_version"></a> [vault\_version](#input\_vault\_version) | n/a | `string` | `"1.7.1"` | no |
 
 ## Outputs
 
-No outputs.
-<!-- END_TF_DOCS -->
+| Name | Description |
+|------|-------------|
+| <a name="output_authtoken"></a> [authtoken](#output\_authtoken) | n/a |
+| <a name="output_vault_url"></a> [vault\_url](#output\_vault\_url) | n/a |
