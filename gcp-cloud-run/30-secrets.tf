@@ -26,7 +26,6 @@ resource "google_secret_manager_secret_iam_member" "cloud_run_secrets_access" {
   role      = "roles/secretmanager.secretAccessor"
 }
 
-
 resource "google_secret_manager_secret" "admin_api_key" {
   secret_id = "${var.deployment_id}-vault-admin-api-key"
 

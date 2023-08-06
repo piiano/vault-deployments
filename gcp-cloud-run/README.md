@@ -16,14 +16,14 @@ Internally, Vault communicates with a CloudSQL that resides in the database subn
 
 The following components are installed by default (some are optional):
 
-| Name          | Description                                   | Comments                                                    |
-| ------------- | --------------------------------------------- | ----------------------------------------------------------- |
-| GAR           | Artifact Registry                             | For hosting the Vault's docker images                       |
-| KMS           | Key Management Service                        | Holds Vault's key encryption key (KEK)                      |
-| VPC/Network   | Private Network for the Vault                 | Created with its own dedicated subnet                       |
-| Bastion       | bastion Virtual Machine instance              | Optional - For testing. Created in the network of the Vault |
-| CloudSQL      | GCP Managed Postgres instance                 | The application database                                    |
-| Cloud Run     | Managed Cloud Run deployment of Piiano Vault  |                                                             |
+| Name          | Description                                   | Comments                                                                       |
+| ------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| GAR           | Artifact Registry                             | For hosting the Vault's docker images                                          |
+| KMS           | Key Management Service                        | Holds Vault's key encryption key (KEK)                                         |
+| VPC/Network   | Private Network for the Vault                 | Created with its own dedicated subnet                                          |
+| Bastion       | bastion Virtual Machine instance              | Optional - For testing. Created in the network of the Vault                    |
+| CloudSQL      | GCP Managed Postgres instance                 | The application database. Default is f1-micro, use for your own considerations |
+| Cloud Run     | Managed Cloud Run deployment of Piiano Vault  |                                                                                |
 
 ## Use cases
 

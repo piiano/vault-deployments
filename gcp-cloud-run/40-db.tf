@@ -48,8 +48,8 @@ module "postgresql-db" {
     require_ssl         = false
   }
 
-  create_timeout = "20m"
-  update_timeout = "15m"
+  create_timeout = "30m"
+  update_timeout = "20m"
 
   depends_on = [
     google_service_networking_connection.private_vpc_connection,

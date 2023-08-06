@@ -148,7 +148,6 @@ variable "image" {
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-server"
 }
 
-
 variable "vault_license" {
   description = "Vault server license token"
   type        = string
