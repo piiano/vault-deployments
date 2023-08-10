@@ -135,7 +135,11 @@ variable "proxy_image" {
 ### Cloud Run ###
 #################
 
-variable "vault_version" { default = "1.7.1" }
+variable "vault_version" {
+  description = "Vault version"
+  type        = string
+  default     = 1.8.1
+}
 
 variable "vault_region" {
   description = "Vault Region. if empty fallback to default region"
