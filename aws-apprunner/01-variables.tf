@@ -128,17 +128,16 @@ variable "create_secret_license" {
 }
 
 variable "secret_arn_license" {
-  description = "The ARN of the Secrets Manager secret of Pvault license. If var.create_secret_license is set to 'true', this variable is ignored"
+  description = "The ARN of the Secrets Manager secret of Pvault license. Ignored if var.create_secret_license is set to 'true'"
   type        = string
   sensitive   = true
   default     = ""
 }
 
 variable "pvault_service_license" {
-  description = "Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers. Cannot be set if var.create_secret_license is set to 'true'"
+  description = "Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers. Ignored if var.create_secret_license is set to 'false'"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 variable "instance_cpu" {
@@ -169,15 +168,6 @@ variable "pvault_env_vars" {
   description = "A map of environment variables to set for the Pvault service. See https://piiano.com/docs/guides/configure/environment-variables for more details."
   type        = map(string)
   default     = {}
-}
-
-locals {
-  # Validation: Either you let the module create the secret or you provide the ARN of an existing secret.
-  # tflint-ignore: terraform_unused_declarations
-  collision_license = (
-    (length(var.secret_arn_license) > 0 && length(var.pvault_service_license) > 0) ||
-    (length(var.secret_arn_license) == 0 && length(var.pvault_service_license) == 0)
-  ) ? tobool("Exactly one of var.secret_arn_license and var.pvault_service_license must be set") : true
 }
 
 # (variable "pvault_tag" {[^}]*default\s*=\s*")([^"]*)

@@ -35,19 +35,30 @@ The terraform parameters can be overridden by updating the .tfvars file or by co
 
 ## Prerequisites
 
-1. A valid license - Click register to [obtain your license](https://piiano.com/docs/guides/get-started). Update it in .tfvars file or configure the environment variable `export TF_VAR_pvault_service_license=<the license>`
+1. A valid license - Click register to [obtain your license](https://piiano.com/docs/guides/get-started). 
+   * Update it in .tfvars file or configure the environment variable `export TF_VAR_pvault_service_license=<the license>`
+   * Alternatively, if you prefer the license not to be stored in the terraform state, you can store it in the AWS secret manager and configure the variable `secret_arn_license` with the secret ARN, and set `create_secret_license` to `false`.
 2. AWS administrative role for the target account.
 
 ## Usage
 
+### Module
+
 ```hcl
 module "pvault" {
-  source               = "./aws-apprunner"
+  source                 = "github.com/piiano/vault-deployments//aws-apprunner"
   pvault_service_license = "eyJhbGc..."
 }
 ```
 
-### Installation
+### Standalone project
+
+If you want to use the provided Terraform module directly, please follow these steps:
+
+1. Clone the repository - `git clone git@github.com:piiano/vault-deployments.git`
+2. Uncomment the `provider "aws"` block in `02-provider.tf` file.
+3. Change directory to the AppRunner module directory - `cd aws-apprunner`
+4. Run the following commands:
 
 ```sh
 terraform init
@@ -76,8 +87,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.67.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.51 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
 
 ## Providers
 
@@ -91,7 +101,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_db"></a> [db](#module\_db) | terraform-aws-modules/rds/aws | 5.2.3 |
-| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 3.19.0 |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 5.0.0 |
 
 ## Resources
 
@@ -145,15 +155,15 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_pvault_log_customer_identifier"></a> [pvault\_log\_customer\_identifier](#input\_pvault\_log\_customer\_identifier) | Identifies the customer in all the observability platforms | `string` | n/a | yes |
 | <a name="input_pvault_port"></a> [pvault\_port](#input\_pvault\_port) | Pvault application port number | `string` | `"8123"` | no |
 | <a name="input_pvault_repository"></a> [pvault\_repository](#input\_pvault\_repository) | Pvault repository public image | `string` | `"public.ecr.aws/s4s5s6q8/pvault-server"` | no |
-| <a name="input_pvault_service_license"></a> [pvault\_service\_license](#input\_pvault\_service\_license) | Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers. Cannot be set if var.create\_secret\_license is set to 'true' | `string` | `""` | no |
-| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | n/a | `string` | `"1.6.1"` | no |
+| <a name="input_pvault_service_license"></a> [pvault\_service\_license](#input\_pvault\_service\_license) | Pvault license code https://piiano.com/docs/guides/install/pre-built-docker-containers. Ignored if var.create\_secret\_license is set to 'false' | `string` | n/a | yes |
+| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | n/a | `string` | `"1.7.0"` | no |
 | <a name="input_rds_allocated_storage"></a> [rds\_allocated\_storage](#input\_rds\_allocated\_storage) | Pvault RDS initial allocated storage in GB | `number` | `"20"` | no |
 | <a name="input_rds_backup_retention_period"></a> [rds\_backup\_retention\_period](#input\_rds\_backup\_retention\_period) | The days to retain backups for RDS. Possible values are 0-35 | `string` | `7` | no |
 | <a name="input_rds_db_name"></a> [rds\_db\_name](#input\_rds\_db\_name) | Pvault RDS database name | `string` | `"pvault"` | no |
 | <a name="input_rds_instance_class"></a> [rds\_instance\_class](#input\_rds\_instance\_class) | Pvault RDS instance class | `string` | `"db.t4g.medium"` | no |
 | <a name="input_rds_port"></a> [rds\_port](#input\_rds\_port) | Pvault RDS port | `string` | `"5432"` | no |
 | <a name="input_rds_username"></a> [rds\_username](#input\_rds\_username) | Pvault RDS username | `string` | `"pvault"` | no |
-| <a name="input_secret_arn_license"></a> [secret\_arn\_license](#input\_secret\_arn\_license) | The ARN of the Secrets Manager secret of Pvault license. If var.create\_secret\_license is set to 'true', this variable is ignored | `string` | `""` | no |
+| <a name="input_secret_arn_license"></a> [secret\_arn\_license](#input\_secret\_arn\_license) | The ARN of the Secrets Manager secret of Pvault license. Ignored if var.create\_secret\_license is set to 'true' | `string` | `""` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The existing VPC\_ID in case that `create_vpc` is false | `string` | `""` | no |
 
 ## Outputs

@@ -4,7 +4,7 @@ module "vpc" {
   count = var.create_vpc ? 1 : 0
 
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.19.0"
+  version = "5.0.0"
 
   name             = var.deployment_id
   cidr             = "10.0.0.0/16"
