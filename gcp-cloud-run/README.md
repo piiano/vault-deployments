@@ -196,3 +196,8 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 |------|------------|
 | <a name="output_authtoken"></a> [authtoken](#output\_authtoken) | Auth token |
 | <a name="output_vault_url"></a> [vault\_url](#output\_vault\_url) | The URL of the Vault server |
+
+## Architecture Diagrams
+
+Multi region architecture
+![Multi region architecture](architecture_multi_region.png)

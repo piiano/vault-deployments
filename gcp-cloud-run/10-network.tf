@@ -5,7 +5,10 @@
 
 locals {
   subnets = concat(
-    [for subnet in var.subnets : merge(subnet, { subnet_region = coalesce(local.vault_region, var.default_region) })],
+    [for subnet in var.subnets : merge(subnet, {
+      subnet_name = "${var.deployment_id}-${subnet.subnet_name}-${var.env}"
+      subnet_region = coalesce(local.vault_region, var.default_region),
+    })],
     [
       {
         subnet_name           = "${var.deployment_id}-${var.vault_cli_subnet}-${var.env}"

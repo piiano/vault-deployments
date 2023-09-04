@@ -138,7 +138,7 @@ variable "proxy_image" {
 variable "vault_version" {
   description = "Vault version"
   type        = string
-  default     = 1.8.1
+  default     = "1.8.1"
 }
 
 variable "vault_region" {
