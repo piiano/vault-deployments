@@ -42,16 +42,21 @@ jobs:
         run: |
           apprunner_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-apprunner/01-variables.tf`
           ecs_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-ecs/01-variables.tf`
+          cloudrun_version=`sed -E -n 's/variable \"vault_version\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' gcp-cloud-run/01-variables.tf`
+
           new_apprunner_version=`npx --yes semver -i ${{ inputs.bump-package }} $apprunner_version`
           new_ecs_version=`npx --yes semver -i ${{ inputs.bump-package }} $ecs_version`
+          new_cloudrun_version=`npx --yes semver -i ${{ inputs.bump-package }} $cloudrun_version`
 
           echo "old_apprunner_version=${apprunner_version}" >> $GITHUB_OUTPUT
           echo "old_ecs_version=${ecs_version}" >> $GITHUB_OUTPUT
+          echo "old_cloudrun_vrsion=${cloudrun_version}" >> $GITHUB_OUTPUT
           echo "new_apprunner_version=${new_apprunner_version}" >> $GITHUB_OUTPUT
           echo "new_ecs_version=${new_ecs_version}" >> $GITHUB_OUTPUT
-
+          echo "new_cloudrun_version=${new_cloudrun_version}" >> $GITHUB_OUTPUT
+          
           if [[ "${{ inputs.bump-package }}" != "none" ]]; then
-            echo "Potentially upgrade to: apprunner $new_apprunner_version, ecs $new_ecs_version"
+            echo "Potentially upgrade to: apprunner $new_apprunner_version, ecs $new_ecs_version, cloudrun $new_cloudrun_version"
           else
             echo "Versions calculated but not requested to bump any version"
           fi
@@ -83,6 +88,20 @@ jobs:
           sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
           sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_ecs_version }}|g" README.md
           sed -i -E "s|pvault-cli:[0-9]+\.[0-9]+\.[0-9]+|pvault-cli:${{ inputs.vault_version }}|g" README.md
+          
+      - name: Update GCP Cloud Run files
+        env:
+          VVER: compatible with Vault version # Vault version
+          AVER: This application version is # Application version
+        if: >
+          github.event_name == 'workflow_dispatch' && inputs.bump-package != 'none' &&
+          (inputs.update-product == 'all' || inputs.update-product == 'cloudrun')
+        working-directory: gcp-cloud-run
+        run: |
+          sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' 01-variables.tf
+          sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
+          sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_cloudrun_version }}|g" README.md
+          sed -i -E "s|pvault-cli:[0-9]+\.[0-9]+\.[0-9]+|pvault-cli:${{ inputs.vault_version }}|g" README.md
 
       - name: Commit version changes and push
         if: github.event_name == 'workflow_dispatch' && github.event_name != 'push'
@@ -94,6 +113,7 @@ jobs:
             echo "There are changes to commit"
             git add aws-apprunner/01-variables.tf aws-apprunner/README.md
             git add aws-ecs/01-variables.tf aws-ecs/README.md
+            git add gcp-cloud-run/01-variables.tf gcp-cloud-run/README.md
             git commit -m "Update publish bump=${{ inputs.bump-package }} with vault version ${{ inputs.vault_version }}"
             git push  
           else

@@ -25,6 +25,9 @@ Each of these folders can be used independently to deploy Vault in its respectiv
 1. [AWS ECS](./aws-ecs)  
    Vault deployed in an ECS container.
 
+1. [GCP Cloud Run](./gcp-cloud-run)  
+   Vault deployed in GCP Cloud Run.
+
 # About Piiano Vault
 
 Piiano Vault is the secure home for sensitive personal data. It allows you to safely store sensitive personal data in your own cloud environment with automated compliance controls.
