@@ -17,7 +17,7 @@ module "postgresql-db" {
   project_id          = var.project
   zone                = local.db_zone
   region              = local.db_region
-  user_name           = var.db_user
+  user_name           = var.cloudsql_username
   disk_autoresize     = true
   encryption_key_name = "${google_kms_crypto_key.db-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.db-encryption-key.name}"
   database_flags = [

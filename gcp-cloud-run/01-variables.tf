@@ -135,8 +135,8 @@ variable "proxy_image" {
 ### Cloud Run ###
 #################
 
-variable "vault_version" {
-  description = "Vault version"
+variable "pvault_tag" {
+  description = "Piiano Vault version"
   type        = string
   default     = "1.8.1"
 }
@@ -146,13 +146,13 @@ variable "vault_region" {
   type        = string
 }
 
-variable "image" {
-  description = "Vault server image name"
+variable "pvault_repository" {
+  description = "Vault server repository name"
   type        = string
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-server"
 }
 
-variable "vault_license" {
+variable "pvault_service_license" {
   description = "Vault server license token"
   type        = string
 }
@@ -260,8 +260,8 @@ variable "db_region" {
   default     = null
 }
 
-variable "db_user" {
-  description = "Vault database user"
+variable "cloudsql_username" {
+  description = "Vault cloud sql user name"
   type        = string
   default     = "pvault"
 }

@@ -46,7 +46,7 @@ ACCESS_TOKEN=\$(curl -s -H 'Metadata-Flavor: Google' ${local.service_account_acc
 VAULT_ADMIN_KEY=\$(curl -s ${local.admin_key_secret_url} --request GET --header \"authorization: Bearer \$ACCESS_TOKEN\" | jq -r '.payload.data' | base64 --decode)
 
 # Create an alias for pvault CLI and configure its address and token.
-alias pvault='docker run -it ${var.cli_image}:${var.vault_version} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
+alias pvault='docker run -it ${var.cli_image}:${var.pvault_tag} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
 " > /etc/profile.d/pvault.sh
 
 sudo chmod +x /etc/profile.d/pvault.sh
@@ -54,7 +54,7 @@ sudo chmod +x /etc/profile.d/pvault.sh
 sudo useradd -m tmpuser
 sudo usermod -aG docker tmpuser
 sudo -u tmpuser docker-credential-gcr configure-docker --registries us-central1-docker.pkg.dev
-sudo -u tmpuser docker pull ${var.cli_image}:${var.vault_version}
+sudo -u tmpuser docker pull ${var.cli_image}:${var.pvault_tag}
 userdel -d tmpuser
 
 sudo echo "#!/bin/bash
