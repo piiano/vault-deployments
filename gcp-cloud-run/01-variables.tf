@@ -181,23 +181,23 @@ variable "connector_cloud_run_max_instances" {
   default     = 4
 }
 
-########################
-### Vault CLI Server ###
-########################
-variable "pvault_cli_subnet" {
-  description = "Subnet where Vault CLI will be deployed"
+############################
+### Vault bastion Server ###
+############################
+variable "pvault_bastion_subnet" {
+  description = "Subnet where Vault bastion will be deployed"
   type        = string
   default     = "sb-vault-authorized"
 }
 
-variable "pvault_cli_subnet_range" {
-  description = "Subnet CIDR range for the Vault CLI VM"
+variable "pvault_bastion_subnet_range" {
+  description = "Subnet CIDR range for the Vault bastion VM"
   type        = string
   default     = "10.8.0.16/28"
 }
 
-variable "pvault_cli_zone" {
-  description = "Zone where Vault CLI will be deployed"
+variable "pvault_bastion_zone" {
+  description = "Zone where Vault bastion will be deployed"
   type        = string
   default     = null
 }

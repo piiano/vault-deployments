@@ -11,9 +11,9 @@ locals {
     })],
     [
       {
-        subnet_name           = "${var.deployment_id}-${var.pvault_cli_subnet}-${var.env}"
+        subnet_name           = "${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"
         subnet_region         = local.client_region
-        subnet_ip             = var.pvault_cli_subnet_range
+        subnet_ip             = var.pvault_bastion_subnet_range
         subnet_private_access = "true"
         description           = "Authorized subnet for accessing Vault Cloud Run"
       },

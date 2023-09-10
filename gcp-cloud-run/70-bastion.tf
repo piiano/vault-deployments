@@ -1,23 +1,23 @@
 
-#################
-### Vault CLI ###
-#################
+#####################
+### Vault bastion ###
+#####################
 locals {
-  vault_cli_zone                   = coalesce(var.pvault_cli_zone, var.default_zone)
+  vault_bastion_zone               = coalesce(var.pvault_bastion_zone, var.default_zone)
   vault_url                        = google_cloud_run_service.nginx_proxy.status[0].url
   service_account_access_token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
   admin_key_secret_url             = "https://secretmanager.googleapis.com/v1/${google_secret_manager_secret_version.admin_api_key_version.id}:access"
 }
 
-resource "google_service_account" "pvault-cli-sa" {
-  account_id   = "${var.deployment_id}-pvault-cli"
-  display_name = "${var.deployment_id}-pvault-cli service account"
+resource "google_service_account" "pvault-bastion-sa" {
+  account_id   = "${var.deployment_id}-pvault-bastion"
+  display_name = "${var.deployment_id}-pvault-bastion service account"
 }
 
-resource "google_compute_instance" "vault-cli" {
-  name         = "${var.deployment_id}-vm-pvault-cli"
+resource "google_compute_instance" "pvault-bastion" {
+  name         = "${var.deployment_id}-vm-pvault-bastion"
   machine_type = "e2-micro"
-  zone         = local.vault_cli_zone
+  zone         = local.vault_bastion_zone
 
   boot_disk {
     initialize_params {
@@ -29,11 +29,11 @@ resource "google_compute_instance" "vault-cli" {
 
   network_interface {
     network    = module.vpc.network_name
-    subnetwork = module.vpc.subnets["${local.client_region}/${var.deployment_id}-${var.pvault_cli_subnet}-${var.env}"].id
+    subnetwork = module.vpc.subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id
   }
 
   service_account {
-    email  = google_service_account.pvault-cli-sa.email
+    email  = google_service_account.pvault-bastion-sa.email
     scopes = ["cloud-platform", "compute-rw"]
   }
 
