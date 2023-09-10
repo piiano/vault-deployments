@@ -8,7 +8,7 @@ resource "google_secret_manager_secret" "db_password_secret" {
   replication {
     user_managed {
       replicas {
-        location = local.vault_region
+        location = local.pvault_region
       }
     }
   }
@@ -32,7 +32,7 @@ resource "google_secret_manager_secret" "admin_api_key" {
   replication {
     user_managed {
       replicas {
-        location = local.vault_region
+        location = local.pvault_region
       }
     }
   }

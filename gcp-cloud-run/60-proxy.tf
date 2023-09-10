@@ -2,7 +2,7 @@
 locals {
   client_region = coalesce(
     var.client_region,
-    var.vault_region,
+    var.pvault_region,
     var.default_region
   )
 }

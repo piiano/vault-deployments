@@ -3,7 +3,7 @@
 ### Vault CLI ###
 #################
 locals {
-  vault_cli_zone                   = coalesce(var.vault_cli_zone, var.default_zone)
+  vault_cli_zone                   = coalesce(var.pvault_cli_zone, var.default_zone)
   vault_url                        = google_cloud_run_service.nginx_proxy.status[0].url
   service_account_access_token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
   admin_key_secret_url             = "https://secretmanager.googleapis.com/v1/${google_secret_manager_secret_version.admin_api_key_version.id}:access"
@@ -29,7 +29,7 @@ resource "google_compute_instance" "vault-cli" {
 
   network_interface {
     network    = module.vpc.network_name
-    subnetwork = module.vpc.subnets["${local.client_region}/${var.deployment_id}-${var.vault_cli_subnet}-${var.env}"].id
+    subnetwork = module.vpc.subnets["${local.client_region}/${var.deployment_id}-${var.pvault_cli_subnet}-${var.env}"].id
   }
 
   service_account {
@@ -46,7 +46,7 @@ ACCESS_TOKEN=\$(curl -s -H 'Metadata-Flavor: Google' ${local.service_account_acc
 VAULT_ADMIN_KEY=\$(curl -s ${local.admin_key_secret_url} --request GET --header \"authorization: Bearer \$ACCESS_TOKEN\" | jq -r '.payload.data' | base64 --decode)
 
 # Create an alias for pvault CLI and configure its address and token.
-alias pvault='docker run -it ${var.cli_image}:${var.pvault_tag} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
+alias pvault='docker run -it ${var.pvault_cli_repository}:${var.pvault_tag} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
 " > /etc/profile.d/pvault.sh
 
 sudo chmod +x /etc/profile.d/pvault.sh
@@ -54,7 +54,7 @@ sudo chmod +x /etc/profile.d/pvault.sh
 sudo useradd -m tmpuser
 sudo usermod -aG docker tmpuser
 sudo -u tmpuser docker-credential-gcr configure-docker --registries us-central1-docker.pkg.dev
-sudo -u tmpuser docker pull ${var.cli_image}:${var.pvault_tag}
+sudo -u tmpuser docker pull ${var.pvault_cli_repository}:${var.pvault_tag}
 userdel -d tmpuser
 
 sudo echo "#!/bin/bash

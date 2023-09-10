@@ -102,6 +102,7 @@ variable "firewall" {
 variable "client_region" {
   description = "Cloud Load Balancer. if empty fallback to default region"
   type        = string
+  default     = null
 }
 
 variable "ilb_frontend_range" {
@@ -141,9 +142,10 @@ variable "pvault_tag" {
   default     = "1.8.1"
 }
 
-variable "vault_region" {
+variable "pvault_region" {
   description = "Vault Region. if empty fallback to default region"
   type        = string
+  default     = null
 }
 
 variable "pvault_repository" {
@@ -167,7 +169,7 @@ variable "pvault_log_customer_env" {
   type        = string
 }
 
-variable "vault_sql_serverless_connector_range" {
+variable "pvault_sql_serverless_connector_range" {
   description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
   type        = string
   default     = "10.8.0.0/28"
@@ -182,26 +184,26 @@ variable "connector_cloud_run_max_instances" {
 ########################
 ### Vault CLI Server ###
 ########################
-variable "vault_cli_subnet" {
+variable "pvault_cli_subnet" {
   description = "Subnet where Vault CLI will be deployed"
   type        = string
   default     = "sb-vault-authorized"
 }
 
-variable "vault_cli_subnet_range" {
+variable "pvault_cli_subnet_range" {
   description = "Subnet CIDR range for the Vault CLI VM"
   type        = string
   default     = "10.8.0.16/28"
 }
 
-variable "vault_cli_zone" {
+variable "pvault_cli_zone" {
   description = "Zone where Vault CLI will be deployed"
   type        = string
   default     = null
 }
 
-variable "cli_image" {
-  description = "Vault server image name"
+variable "pvault_cli_repository" {
+  description = "Vault CLI repository name"
   type        = string
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-cli"
 }
@@ -215,14 +217,14 @@ variable "kms_ring_name" {
   default     = "key-ring"
 }
 
-variable "vault_kms_key_name" {
-  description = "KMS key name"
+variable "pvault_kms_key_name" {
+  description = "Vault KMS key name"
   type        = string
   default     = "vault-key"
 }
 
-variable "db_kms_key_name" {
-  description = "KMS key name"
+variable "cloudsql_kms_key_name" {
+  description = "Cloud sql KMS key name"
   type        = string
   default     = "db-key"
 }
@@ -230,32 +232,32 @@ variable "db_kms_key_name" {
 #################
 ### Cloud SQL ###
 #################
-variable "db_instance_name" {
-  description = "Database instance name"
+variable "cloudsql_instance_name" {
+  description = "Cloud sql instance name"
   type        = string
   default     = "vault-sql"
 }
 
-variable "db_name" {
-  description = "Vault database name"
+variable "cloudsql_name" {
+  description = "Vault cloud sql name"
   type        = string
   default     = "pvault"
 }
 
-variable "db_version" {
-  description = "Postgres database version"
+variable "cloudsql_version" {
+  description = "Postgres cloud sql version"
   type        = string
   default     = "POSTGRES_14"
 }
 
-variable "db_zone" {
-  description = "Database zone. if empty fallback to default zone"
+variable "cloudsql_zone" {
+  description = "Vault cloud sql zone. if empty fallback to default zone"
   type        = string
   default     = null
 }
 
-variable "db_region" {
-  description = "Database region. if empty fallback to default region"
+variable "cloudsql_region" {
+  description = "Vault cloud sql region. if empty fallback to default region"
   type        = string
   default     = null
 }
@@ -266,20 +268,20 @@ variable "cloudsql_username" {
   default     = "pvault"
 }
 
-variable "db_tier" {
-  description = "Database instance tier"
+variable "cloudsql_tier" {
+  description = "Cloud sql instance tier"
   type        = string
   default     = "db-f1-micro"
 }
 
-variable "db_instance_ip_range" {
-  description = "Database instance IP range"
+variable "cloudsql_instance_ip_range" {
+  description = "Cloud sql instance IP range"
   type        = string
   default     = "10.7.0.0/16"
 }
 
-variable "db_deletion_protection" {
-  description = "Database instance deletion protection"
+variable "cloudsql_deletion_protection" {
+  description = "Cloud sql instance deletion protection"
   type        = bool
   default     = false
 }

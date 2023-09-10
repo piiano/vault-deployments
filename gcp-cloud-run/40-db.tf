@@ -4,16 +4,16 @@
 #################
 
 locals {
-  db_region = coalesce(var.db_region, var.default_region)
-  db_zone   = coalesce(var.db_zone, var.default_zone)
+  db_zone   = coalesce(var.cloudsql_zone, var.default_zone)
+  db_region = coalesce(var.cloudsql_region, var.default_region)
 }
 
 module "postgresql-db" {
   source              = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
   version             = "15.0.0"
-  name                = "${var.deployment_id}-${var.db_instance_name}"
-  db_name             = var.db_name
-  database_version    = var.db_version
+  name                = "${var.deployment_id}-${var.cloudsql_instance_name}"
+  db_name             = var.cloudsql_name
+  database_version    = var.cloudsql_version
   project_id          = var.project
   zone                = local.db_zone
   region              = local.db_region
@@ -26,9 +26,9 @@ module "postgresql-db" {
       value = "100"
     }
   ]
-  tier = var.db_tier
+  tier = var.cloudsql_tier
 
-  deletion_protection = var.db_deletion_protection
+  deletion_protection = var.cloudsql_deletion_protection
 
   backup_configuration = {
     enabled                        = true

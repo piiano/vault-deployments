@@ -4,12 +4,12 @@
 ################################
 
 locals {
-  vault_region = coalesce(var.vault_region, var.default_region)
+  pvault_region = coalesce(var.pvault_region, var.default_region)
 }
 
 resource "google_cloud_run_service" "pvault-server" {
   name     = "${var.deployment_id}-pvault-server"
-  location = local.vault_region
+  location = local.pvault_region
   provider = google-beta
 
   metadata {
@@ -47,7 +47,7 @@ resource "google_cloud_run_service" "pvault-server" {
         }
         env {
           name  = "PVAULT_DB_NAME"
-          value = var.db_name
+          value = var.cloudsql_name
         }
         env {
           name  = "PVAULT_DB_USER"
