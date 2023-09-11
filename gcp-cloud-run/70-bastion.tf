@@ -4,7 +4,7 @@
 #####################
 locals {
   vault_bastion_zone               = coalesce(var.pvault_bastion_zone, var.default_zone)
-  vault_url                        = google_cloud_run_service.nginx_proxy.status[0].url
+  vault_url                        = var.create_proxy ? google_cloud_run_service.nginx_proxy[0].status[0].url : google_cloud_run_service.pvault-server.status[0].url
   service_account_access_token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
   admin_key_secret_url             = "https://secretmanager.googleapis.com/v1/${google_secret_manager_secret_version.admin_api_key_version.id}:access"
 }

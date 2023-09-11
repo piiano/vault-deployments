@@ -163,6 +163,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_cloudsql_version"></a> [cloudsql\_version](#input\_cloudsql\_version) | Postgres cloud sql version | `string` | `"POSTGRES_14"` | no |
 | <a name="input_cloudsql_zone"></a> [cloudsql\_zone](#input\_cloudsql\_zone) | Vault cloud sql zone. if empty fallback to default zone | `string` | `null` | no |
 | <a name="input_connector_cloud_run_max_instances"></a> [connector\_cloud\_run\_max\_instances](#input\_connector\_cloud\_run\_max\_instances) | Maximum number of instances used by VPC Serverless connector | `number` | `4` | no |
+| <a name="input_create_proxy"></a> [create\_proxy](#input\_create\_proxy) | Controls if proxy resources should be created | `bool` | `false` | no |
 | <a name="input_default_region"></a> [default\_region](#input\_default\_region) | Default region where resources without a specified region will be deployed | `string` | `"us-central1"` | no |
 | <a name="input_default_zone"></a> [default\_zone](#input\_default\_zone) | Default zone where resources without a specified zone will be deployed | `string` | `"us-central1-a"` | no |
 | <a name="input_deployment_id"></a> [deployment\_id](#input\_deployment\_id) | The unique deployment id of this deployment | `string` | n/a | yes |

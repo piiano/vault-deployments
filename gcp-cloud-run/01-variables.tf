@@ -2,6 +2,7 @@
 ###############
 ### General ###
 ###############
+
 variable "project" {
   description = "GCP Project ID where resources will be deployed"
   type        = string
@@ -51,6 +52,7 @@ variable "apis" {
 ###############
 ### Network ###
 ###############
+
 variable "network" {
   description = "VPC Network name"
   type        = string
@@ -120,6 +122,13 @@ variable "ilb_backend_range" {
 #############
 ### Proxy ###
 #############
+
+variable "create_proxy" {
+    description = "Controls if proxy resources should be created"
+    type        = bool
+    default     = false
+}
+
 variable "proxy_vault_serverless_connector_range" {
   description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
   type        = string
@@ -181,9 +190,10 @@ variable "connector_cloud_run_max_instances" {
   default     = 4
 }
 
-############################
-### Vault bastion Server ###
-############################
+#####################
+### Vault bastion ###
+#####################
+
 variable "pvault_bastion_subnet" {
   description = "Subnet where Vault bastion will be deployed"
   type        = string
@@ -211,6 +221,7 @@ variable "pvault_cli_repository" {
 ###########
 ### KMS ###
 ###########
+
 variable "kms_ring_name" {
   description = "KMS Ring name"
   type        = string
@@ -232,6 +243,7 @@ variable "cloudsql_kms_key_name" {
 #################
 ### Cloud SQL ###
 #################
+
 variable "cloudsql_instance_name" {
   description = "Cloud sql instance name"
   type        = string

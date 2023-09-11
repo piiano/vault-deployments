@@ -23,7 +23,9 @@ locals {
         subnet_region         = coalesce(local.pvault_region, var.default_region)
         subnet_private_access = "true"
         description           = "Serverless Connector Subnet for Vault Cloud Run"
-      },
+      }
+    ],
+    var.create_proxy ? [
       {
         subnet_name           = "${var.deployment_id}-sb-proxy-vault-connector-${var.env}"
         subnet_ip             = var.proxy_vault_serverless_connector_range
@@ -31,7 +33,7 @@ locals {
         subnet_private_access = "true"
         description           = "Serverless Connector Subnet for Proxy Cloud Run"
       }
-    ]
+    ] : []
   )
 }
 
@@ -46,7 +48,7 @@ module "vpc" {
   network_name                           = "${var.deployment_id}-${var.network}"
   routing_mode                           = "GLOBAL"
   project_id                             = var.project
-  subnets                                = concat(local.subnets)
+  subnets                                = local.subnets
   routes                                 = [
     for r in var.routes : {
       name              = "${var.deployment_id}-${r.name}"
@@ -123,6 +125,8 @@ resource "google_vpc_access_connector" "connector_vault_cloud_run" {
 }
 
 resource "google_vpc_access_connector" "proxy_vault_connector" {
+  count = var.create_proxy ? 1 : 0
+
   name     = "${var.deployment_id}-proxy-cn"
   provider = google-beta
   region   = local.client_region
