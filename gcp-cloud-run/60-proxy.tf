@@ -83,7 +83,7 @@ module "proxy_internal_load_balancer" {
   prefix            = "${var.deployment_id}-proxy"
   region            = local.client_region
   cloud_run_name    = google_cloud_run_service.nginx_proxy[0].name
-  network_id        = module.vpc.network_id
+  network_id        = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
   backend_ip_range  = var.ilb_backend_range
   frontend_ip_range = var.ilb_frontend_range
   timeout           = 30

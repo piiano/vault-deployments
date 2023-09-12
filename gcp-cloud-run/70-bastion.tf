@@ -28,8 +28,8 @@ resource "google_compute_instance" "pvault-bastion" {
   }
 
   network_interface {
-    network    = module.vpc.network_name
-    subnetwork = module.vpc.subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id
+    network    = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
+    subnetwork = var.create_vpc ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id : var.bastion_subnet_id ? var.bastion_subnet_id : null
   }
 
   service_account {
@@ -77,7 +77,8 @@ sudo ./etc/profile.d/shoutdown-inactive.sh
 EOF
 
   depends_on = [
-    module.vpc,
+    module.vpc[0],
+    var.vpc_id,
     google_project_service.apis
   ]
 }

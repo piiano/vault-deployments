@@ -42,7 +42,7 @@ module "postgresql-db" {
 
   ip_configuration = {
     ipv4_enabled        = false
-    private_network     = module.vpc.network_id
+    private_network     = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
     allocated_ip_range  = null
     authorized_networks = []
     require_ssl         = false

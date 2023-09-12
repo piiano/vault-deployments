@@ -53,6 +53,30 @@ variable "apis" {
 ### Network ###
 ###############
 
+variable "create_vpc" {
+  description = "Controls if VPC should be created (it affects almost all resources)"
+  type        = bool
+  default     = true
+}
+
+variable "vpc_id" {
+  description = "The existing VPC_ID in case that `create_vpc` is false"
+  type        = string
+  default     = ""
+}
+
+variable "vault_cn_subnet_id" {
+  description = "Vault connector subnet name in the vpc in case that `create_vpc` is false, not mandatory"
+  type        = string
+  default     = ""
+}
+
+variable "bastion_subnet_id" {
+  description = "Bastion subnet name in the vpc in case that `create_vpc` is false, not mandatory"
+  type        = string
+  default     = ""
+}
+
 variable "network" {
   description = "VPC Network name"
   type        = string
