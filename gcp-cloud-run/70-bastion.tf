@@ -2,6 +2,7 @@
 #####################
 ### Vault bastion ###
 #####################
+
 locals {
   vault_bastion_zone               = coalesce(var.pvault_bastion_zone, var.default_zone)
   vault_url                        = var.create_proxy ? google_cloud_run_service.nginx_proxy[0].status[0].url : google_cloud_run_service.pvault-server.status[0].url
@@ -10,11 +11,15 @@ locals {
 }
 
 resource "google_service_account" "pvault-bastion-sa" {
+  count        = var.create_bastion ? 1 : 0
+
   account_id   = "${var.deployment_id}-pvault-bastion"
   display_name = "${var.deployment_id}-pvault-bastion service account"
 }
 
 resource "google_compute_instance" "pvault-bastion" {
+  count        = var.create_bastion ? 1 : 0
+
   name         = "${var.deployment_id}-vm-pvault-bastion"
   machine_type = "e2-micro"
   zone         = local.vault_bastion_zone
@@ -33,7 +38,7 @@ resource "google_compute_instance" "pvault-bastion" {
   }
 
   service_account {
-    email  = google_service_account.pvault-bastion-sa.email
+    email  = google_service_account.pvault-bastion-sa[0].email
     scopes = ["cloud-platform", "compute-rw"]
   }
 

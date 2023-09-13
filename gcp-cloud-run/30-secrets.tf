@@ -2,6 +2,7 @@
 ######################
 ### Secret Manager ###
 ######################
+
 resource "google_secret_manager_secret" "db_password_secret" {
   secret_id = "${var.deployment_id}-vault-db-password"
 
@@ -60,7 +61,9 @@ resource "google_secret_manager_secret_iam_member" "cloud_run_admin_api_key_secr
 }
 
 resource "google_secret_manager_secret_iam_member" "bastion_vm_admin_api_key_secret_access" {
+  count     = var.create_bastion ? 1 : 0
+
   secret_id = google_secret_manager_secret.admin_api_key.secret_id
-  member    = "serviceAccount:${google_service_account.pvault-bastion-sa.email}"
+  member    = "serviceAccount:${google_service_account.pvault-bastion-sa[0].email}"
   role      = "roles/secretmanager.secretAccessor"
 }

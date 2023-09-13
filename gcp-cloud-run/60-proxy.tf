@@ -1,4 +1,8 @@
 
+#############
+### Proxy ###
+#############
+
 locals {
   client_region = coalesce(
     var.client_region,

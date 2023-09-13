@@ -78,21 +78,21 @@ variable "bastion_subnet_id" {
 }
 
 variable "network" {
-  description = "VPC Network name"
+  description = "VPC Network name to be created when `create_vpc` is true"
   type        = string
   default     = "vpc-private-piiano"
 }
 
 variable "subnets" {
   type        = list(map(string))
-  description = "List of subnets being created"
+  description = "List of subnets to be created when `create_vpc` is true"
 
   default = []
 }
 
 variable "routes" {
   type        = list(map(string))
-  description = "List of routes being created"
+  description = "List of routes to be created when `create_vpc` is true"
 
   default = [
     {
@@ -106,7 +106,7 @@ variable "routes" {
 
 variable "firewall" {
   type        = any
-  description = "List of firewalls being created"
+  description = "List of firewalls to be created when `create_vpc` is true"
 
   default = [
     {
@@ -119,50 +119,6 @@ variable "firewall" {
       }]
     }
   ]
-}
-
-###########################
-### Cloud Load Balancer ###
-###########################
-
-variable "client_region" {
-  description = "Cloud Load Balancer. if empty fallback to default region"
-  type        = string
-  default     = null
-}
-
-variable "ilb_frontend_range" {
-  description = "Cloud Load Balancer /26 CIDR range"
-  type        = string
-  default     = "10.8.1.0/26"
-}
-
-variable "ilb_backend_range" {
-  description = "Cloud Load Balancer /26 CIDR range"
-  type        = string
-  default     = "10.8.0.64/26"
-}
-
-#############
-### Proxy ###
-#############
-
-variable "create_proxy" {
-    description = "Controls if proxy resources should be created"
-    type        = bool
-    default     = false
-}
-
-variable "proxy_vault_serverless_connector_range" {
-  description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
-  type        = string
-  default     = "10.8.3.0/28"
-}
-
-variable "proxy_image" {
-  description = "Proxy Docker image"
-  type        = string
-  default     = "us-central1-docker.pkg.dev/piiano/docker/nginx-proxy:3"
 }
 
 #################
@@ -214,9 +170,59 @@ variable "connector_cloud_run_max_instances" {
   default     = 4
 }
 
+###########################
+### Cloud Load Balancer ###
+###########################
+
+variable "client_region" {
+  description = "Cloud Load Balancer. if empty fallback to default region"
+  type        = string
+  default     = null
+}
+
+variable "ilb_frontend_range" {
+  description = "Cloud Load Balancer /26 CIDR range"
+  type        = string
+  default     = "10.8.1.0/26"
+}
+
+variable "ilb_backend_range" {
+  description = "Cloud Load Balancer /26 CIDR range"
+  type        = string
+  default     = "10.8.0.64/26"
+}
+
+#############
+### Proxy ###
+#############
+
+variable "create_proxy" {
+    description = "Controls if proxy resources should be created"
+    type        = bool
+    default     = false
+}
+
+variable "proxy_vault_serverless_connector_range" {
+  description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
+  type        = string
+  default     = "10.8.3.0/28"
+}
+
+variable "proxy_image" {
+  description = "Proxy Docker image"
+  type        = string
+  default     = "us-central1-docker.pkg.dev/piiano/docker/nginx-proxy:3"
+}
+
 #####################
 ### Vault bastion ###
 #####################
+
+variable "create_bastion" {
+  description = "Controls if bastion resources should be created"
+  type        = bool
+  default     = true
+}
 
 variable "pvault_bastion_subnet" {
   description = "Subnet where Vault bastion will be deployed"
