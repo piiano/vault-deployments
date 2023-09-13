@@ -62,19 +62,19 @@ variable "create_vpc" {
 variable "vpc_id" {
   description = "The existing VPC_ID in case that `create_vpc` is false"
   type        = string
-  default     = ""
+  default     = null
 }
 
-variable "vault_cn_subnet_id" {
-  description = "Vault connector subnet name in the vpc in case that `create_vpc` is false, not mandatory"
+variable "vault_cn_subnet_name" {
+  description = "Vault connector subnet name in the vpc in case that `create_vpc` is false"
   type        = string
-  default     = ""
+  default     = null
 }
 
-variable "bastion_subnet_id" {
-  description = "Bastion subnet name in the vpc in case that `create_vpc` is false, not mandatory"
+variable "bastion_subnet_name" {
+  description = "Bastion subnet name in the vpc in case that `create_vpc` is false"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "subnets" {
@@ -122,7 +122,7 @@ variable "firewall" {
 variable "pvault_tag" {
   description = "Piiano Vault version"
   type        = string
-  default     = "1.8.1"
+  default     = "1.8.2"
 }
 
 variable "pvault_region" {
@@ -132,7 +132,7 @@ variable "pvault_region" {
 }
 
 variable "pvault_repository" {
-  description = "Vault server repository name"
+  description = "Vault Server container repository"
   type        = string
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-server"
 }
@@ -158,6 +158,21 @@ variable "pvault_sql_serverless_connector_range" {
   default     = "10.8.0.0/28"
 }
 
+variable "pvault_devmode" {
+  description = "Enable devmode for Pvault. See https://piiano.com/docs/guides/configure/environment-variables#production-and-development-mode for more details."
+  type        = bool
+  default     = false
+}
+
+variable "pvault_env_vars" {
+  description = "A map of environment variables and values to set for the Pvault service. Except the following: PVAULT_LOG_CUSTOMER_IDENTIFIER, PVAULT_LOG_CUSTOMER_ENV, PVAULT_TLS_ENABLE, PVAULT_DB_REQUIRE_TLS, PVAULT_DB_HOSTNAME, PVAULT_DB_NAME, PVAULT_DB_USER, PVAULT_SERVICE_LICENSE, PVAULT_SERVICE_TIMEOUT_SECONDS, PVAULT_KMS_URI, PVAULT_DEVMODE, PVAULT_DB_PASSWORD, PVAULT_SERVICE_ADMIN_API_KEY. See [https://piiano.com/docs/guides/configure/environment-variables](https://piiano.com/docs/guides/configure/environment-variables) for more details."
+  type        = map(string)
+  default     = {
+    # Add environment variables as needed, for example:
+    # PVAULT_FEATURES_MASK_LICENSE = true
+  }
+}
+
 variable "connector_cloud_run_max_instances" {
   description = "Maximum number of instances used by VPC Serverless connector"
   type        = number
@@ -169,19 +184,19 @@ variable "connector_cloud_run_max_instances" {
 ###########################
 
 variable "client_region" {
-  description = "Cloud Load Balancer. if empty fallback to default region"
+  description = "Client region for cloud load balancer. applicable when create_proxy = true. if empty fallback to default region"
   type        = string
   default     = null
 }
 
 variable "ilb_frontend_range" {
-  description = "Cloud Load Balancer /26 CIDR range"
+  description = "Frontend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
   type        = string
   default     = "10.8.1.0/26"
 }
 
 variable "ilb_backend_range" {
-  description = "Cloud Load Balancer /26 CIDR range"
+  description = "Backend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
   type        = string
   default     = "10.8.0.64/26"
 }
@@ -191,7 +206,7 @@ variable "ilb_backend_range" {
 #############
 
 variable "create_proxy" {
-    description = "Controls if proxy resources should be created"
+    description = "Controls if proxy resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
     type        = bool
     default     = false
 }

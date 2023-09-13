@@ -4,7 +4,7 @@
 ##############
 
 locals {
-  network = "vpc-private-piiano"
+  network = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
 
   subnets = concat(
     var.create_vpc ? [for subnet in var.subnets : merge(subnet, {
@@ -37,6 +37,9 @@ locals {
       }
     ] : []
   )
+
+  vault_cn_subnet = var.create_vpc ? module.vpc[0].subnets["${local.pvault_region}/${var.deployment_id}-sb-connector-vault-cloud-run-${var.env}"].name : var.vault_cn_subnet_name
+  proxy_cn_subnet = var.create_vpc && var.create_proxy ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-sb-proxy-vault-connector-${var.env}"].name : null
 }
 
 ###############
@@ -49,7 +52,7 @@ module "vpc" {
   source  = "terraform-google-modules/network/google"
   version = "~> 4.0"
 
-  network_name                           = "${var.deployment_id}-${local.network}"
+  network_name                           = "${var.deployment_id}-vpc-private-piiano"
   routing_mode                           = "GLOBAL"
   project_id                             = var.project
   subnets                                = local.subnets
@@ -88,19 +91,19 @@ module "vpc" {
 ##############################################
 
 resource "google_compute_global_address" "private_ip_address" {
-  name         = "${var.deployment_id}-${local.network}-ip-address"
+  name         = "${var.deployment_id}-vpc-private-piiano-ip-address"
   provider = google-beta
   purpose      = "VPC_PEERING"
   address_type = "INTERNAL"
 
-  network       = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
+  network       = local.network
   prefix_length = split("/", var.cloudsql_instance_ip_range)[1]
   address       = split("/", var.cloudsql_instance_ip_range)[0]
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
   provider                = google-beta
-  network                 = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
+  network                 = local.network
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
 }
@@ -119,9 +122,8 @@ resource "google_vpc_access_connector" "connector_vault_cloud_run" {
   name     = "${var.deployment_id}-sql-cn"
   provider = google-beta
   region   = local.pvault_region
-  network = var.create_vpc ? null : var.vpc_id
   subnet {
-    name = var.create_vpc ? module.vpc[0].subnets["${local.pvault_region}/${var.deployment_id}-sb-connector-vault-cloud-run-${var.env}"].name : var.vault_cn_subnet_id ? var.vault_cn_subnet_id : null
+    name = local.vault_cn_subnet
   }
   max_throughput = 400
   min_instances  = 2
@@ -135,9 +137,8 @@ resource "google_vpc_access_connector" "proxy_vault_connector" {
   name     = "${var.deployment_id}-proxy-cn"
   provider = google-beta
   region   = local.client_region
-  network = var.create_vpc ? null : var.vpc_id
   subnet {
-    name = var.create_vpc ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-sb-proxy-vault-connector-${var.env}"].name : null
+    name = local.proxy_cn_subnet
   }
   max_throughput = 400
   min_instances  = 2

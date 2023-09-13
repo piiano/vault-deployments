@@ -8,6 +8,7 @@ locals {
   vault_url                        = var.create_proxy ? google_cloud_run_service.nginx_proxy[0].status[0].url : google_cloud_run_service.pvault-server.status[0].url
   service_account_access_token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
   admin_key_secret_url             = "https://secretmanager.googleapis.com/v1/${google_secret_manager_secret_version.admin_api_key_version.id}:access"
+  bastion_subnetwork               = var.create_vpc ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id : var.bastion_subnet_name
 }
 
 resource "google_service_account" "pvault-bastion-sa" {
@@ -33,8 +34,8 @@ resource "google_compute_instance" "pvault-bastion" {
   }
 
   network_interface {
-    network    = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
-    subnetwork = var.create_vpc ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id : var.bastion_subnet_id ? var.bastion_subnet_id : null
+    network    = local.network
+    subnetwork = local.bastion_subnetwork
   }
 
   service_account {

@@ -5,6 +5,8 @@
 
 locals {
   pvault_region = coalesce(var.pvault_region, var.default_region)
+
+  env_keys = tolist(keys(var.pvault_env_vars))
 }
 
 resource "google_cloud_run_service" "pvault-server" {
@@ -25,6 +27,13 @@ resource "google_cloud_run_service" "pvault-server" {
       container_concurrency = 100
       containers {
         image = "${var.pvault_repository}:${var.pvault_tag}"
+        dynamic "env" {
+          for_each = local.env_keys
+          content {
+            name  = local.env_keys[env.key]
+            value = var.pvault_env_vars[local.env_keys[env.key]]
+          }
+        }
         env {
           name  = "PVAULT_LOG_CUSTOMER_IDENTIFIER"
           value = var.pvault_log_customer_identifier
@@ -64,6 +73,10 @@ resource "google_cloud_run_service" "pvault-server" {
         env {
           name  = "PVAULT_KMS_URI"
           value = "gcp-kms://${google_kms_crypto_key.vault-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.vault-encryption-key.name}"
+        }
+        env {
+          name  = "PVAULT_DEVMODE"
+          value = var.pvault_devmode ? "1" : "0"
         }
         env {
           name = "PVAULT_DB_PASSWORD"
