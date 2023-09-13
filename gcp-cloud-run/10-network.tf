@@ -4,6 +4,8 @@
 ##############
 
 locals {
+  network = "vpc-private-piiano"
+
   subnets = concat(
     var.create_vpc ? [for subnet in var.subnets : merge(subnet, {
       subnet_name = "${var.deployment_id}-${subnet.subnet_name}-${var.env}"
@@ -47,7 +49,7 @@ module "vpc" {
   source  = "terraform-google-modules/network/google"
   version = "~> 4.0"
 
-  network_name                           = "${var.deployment_id}-${var.network}"
+  network_name                           = "${var.deployment_id}-${local.network}"
   routing_mode                           = "GLOBAL"
   project_id                             = var.project
   subnets                                = local.subnets
@@ -86,7 +88,7 @@ module "vpc" {
 ##############################################
 
 resource "google_compute_global_address" "private_ip_address" {
-  name         = "${var.deployment_id}-${var.network}-ip-address"
+  name         = "${var.deployment_id}-${local.network}-ip-address"
   provider = google-beta
   purpose      = "VPC_PEERING"
   address_type = "INTERNAL"

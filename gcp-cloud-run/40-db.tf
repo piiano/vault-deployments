@@ -4,6 +4,7 @@
 #################
 
 locals {
+  db_version = "POSTGRES_14"
   db_zone   = coalesce(var.cloudsql_zone, var.default_zone)
   db_region = coalesce(var.cloudsql_region, var.default_region)
 }
@@ -11,9 +12,9 @@ locals {
 module "postgresql-db" {
   source              = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
   version             = "15.0.0"
-  name                = "${var.deployment_id}-${var.cloudsql_instance_name}"
+  name                = "${var.deployment_id}-vault-sql"
   db_name             = var.cloudsql_name
-  database_version    = var.cloudsql_version
+  database_version    = local.db_version
   project_id          = var.project
   zone                = local.db_zone
   region              = local.db_region

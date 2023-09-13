@@ -77,12 +77,6 @@ variable "bastion_subnet_id" {
   default     = ""
 }
 
-variable "network" {
-  description = "VPC Network name to be created when `create_vpc` is true"
-  type        = string
-  default     = "vpc-private-piiano"
-}
-
 variable "subnets" {
   type        = list(map(string))
   description = "List of subnets to be created when `create_vpc` is true"
@@ -248,48 +242,14 @@ variable "pvault_cli_repository" {
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-cli"
 }
 
-###########
-### KMS ###
-###########
-
-variable "kms_ring_name" {
-  description = "KMS Ring name"
-  type        = string
-  default     = "key-ring"
-}
-
-variable "pvault_kms_key_name" {
-  description = "Vault KMS key name"
-  type        = string
-  default     = "vault-key"
-}
-
-variable "cloudsql_kms_key_name" {
-  description = "Cloud sql KMS key name"
-  type        = string
-  default     = "db-key"
-}
-
 #################
 ### Cloud SQL ###
 #################
-
-variable "cloudsql_instance_name" {
-  description = "Cloud sql instance name"
-  type        = string
-  default     = "vault-sql"
-}
 
 variable "cloudsql_name" {
   description = "Vault cloud sql name"
   type        = string
   default     = "pvault"
-}
-
-variable "cloudsql_version" {
-  description = "Postgres cloud sql version"
-  type        = string
-  default     = "POSTGRES_14"
 }
 
 variable "cloudsql_zone" {
