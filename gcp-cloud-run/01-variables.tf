@@ -2,6 +2,7 @@
 ###############
 ### General ###
 ###############
+
 variable "project" {
   description = "GCP Project ID where resources will be deployed"
   type        = string
@@ -51,22 +52,41 @@ variable "apis" {
 ###############
 ### Network ###
 ###############
-variable "network" {
-  description = "VPC Network name"
+
+variable "create_vpc" {
+  description = "Controls if VPC should be created (it affects almost all resources)"
+  type        = bool
+  default     = true
+}
+
+variable "vpc_id" {
+  description = "The existing VPC_ID in case that `create_vpc` is false"
   type        = string
-  default     = "vpc-private-piiano"
+  default     = null
+}
+
+variable "vault_cn_subnet_name" {
+  description = "Vault connector subnet name in the vpc in case that `create_vpc` is false"
+  type        = string
+  default     = null
+}
+
+variable "bastion_subnet_name" {
+  description = "Bastion subnet name in the vpc in case that `create_vpc` is false"
+  type        = string
+  default     = null
 }
 
 variable "subnets" {
   type        = list(map(string))
-  description = "List of subnets being created"
+  description = "List of subnets to be created when `create_vpc` is true"
 
   default = []
 }
 
 variable "routes" {
   type        = list(map(string))
-  description = "List of routes being created"
+  description = "List of routes to be created when `create_vpc` is true"
 
   default = [
     {
@@ -80,7 +100,7 @@ variable "routes" {
 
 variable "firewall" {
   type        = any
-  description = "List of firewalls being created"
+  description = "List of firewalls to be created when `create_vpc` is true"
 
   default = [
     {
@@ -95,64 +115,29 @@ variable "firewall" {
   ]
 }
 
-###########################
-### Cloud Load Balancer ###
-###########################
-
-variable "client_region" {
-  description = "Cloud Load Balancer. if empty fallback to default region"
-  type        = string
-}
-
-variable "ilb_frontend_range" {
-  description = "Cloud Load Balancer /26 CIDR range"
-  type        = string
-  default     = "10.8.1.0/26"
-}
-
-variable "ilb_backend_range" {
-  description = "Cloud Load Balancer /26 CIDR range"
-  type        = string
-  default     = "10.8.0.64/26"
-}
-
-#############
-### Proxy ###
-#############
-variable "proxy_vault_serverless_connector_range" {
-  description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
-  type        = string
-  default     = "10.8.3.0/28"
-}
-
-variable "proxy_image" {
-  description = "Proxy Docker image"
-  type        = string
-  default     = "us-central1-docker.pkg.dev/piiano/docker/nginx-proxy:3"
-}
-
 #################
 ### Cloud Run ###
 #################
 
-variable "vault_version" {
-  description = "Vault version"
+variable "pvault_tag" {
+  description = "Piiano Vault version"
   type        = string
-  default     = "1.8.1"
+  default     = "1.8.2"
 }
 
-variable "vault_region" {
+variable "pvault_region" {
   description = "Vault Region. if empty fallback to default region"
   type        = string
+  default     = null
 }
 
-variable "image" {
-  description = "Vault server image name"
+variable "pvault_repository" {
+  description = "Vault Server container repository"
   type        = string
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-server"
 }
 
-variable "vault_license" {
+variable "pvault_service_license" {
   description = "Vault server license token"
   type        = string
 }
@@ -167,10 +152,25 @@ variable "pvault_log_customer_env" {
   type        = string
 }
 
-variable "vault_sql_serverless_connector_range" {
+variable "pvault_sql_serverless_connector_range" {
   description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
   type        = string
   default     = "10.8.0.0/28"
+}
+
+variable "pvault_devmode" {
+  description = "Enable devmode for Pvault. See https://piiano.com/docs/guides/configure/environment-variables#production-and-development-mode for more details."
+  type        = bool
+  default     = false
+}
+
+variable "pvault_env_vars" {
+  description = "A map of environment variables and values to set for the Pvault service. Except the following: PVAULT_LOG_CUSTOMER_IDENTIFIER, PVAULT_LOG_CUSTOMER_ENV, PVAULT_TLS_ENABLE, PVAULT_DB_REQUIRE_TLS, PVAULT_DB_HOSTNAME, PVAULT_DB_NAME, PVAULT_DB_USER, PVAULT_SERVICE_LICENSE, PVAULT_SERVICE_TIMEOUT_SECONDS, PVAULT_KMS_URI, PVAULT_DEVMODE, PVAULT_DB_PASSWORD, PVAULT_SERVICE_ADMIN_API_KEY. See [https://piiano.com/docs/guides/configure/environment-variables](https://piiano.com/docs/guides/configure/environment-variables) for more details."
+  type        = map(string)
+  default     = {
+    # Add environment variables as needed, for example:
+    # PVAULT_FEATURES_MASK_LICENSE = true
+  }
 }
 
 variable "connector_cloud_run_max_instances" {
@@ -179,107 +179,126 @@ variable "connector_cloud_run_max_instances" {
   default     = 4
 }
 
-########################
-### Vault CLI Server ###
-########################
-variable "vault_cli_subnet" {
-  description = "Subnet where Vault CLI will be deployed"
-  type        = string
-  default     = "sb-vault-authorized"
-}
+###########################
+### Cloud Load Balancer ###
+###########################
 
-variable "vault_cli_subnet_range" {
-  description = "Subnet CIDR range for the Vault CLI VM"
-  type        = string
-  default     = "10.8.0.16/28"
-}
-
-variable "vault_cli_zone" {
-  description = "Zone where Vault CLI will be deployed"
+variable "client_region" {
+  description = "Client region for cloud load balancer. applicable when create_proxy = true. if empty fallback to default region"
   type        = string
   default     = null
 }
 
-variable "cli_image" {
-  description = "Vault server image name"
+variable "ilb_frontend_range" {
+  description = "Frontend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
+  type        = string
+  default     = "10.8.1.0/26"
+}
+
+variable "ilb_backend_range" {
+  description = "Backend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
+  type        = string
+  default     = "10.8.0.64/26"
+}
+
+#############
+### Proxy ###
+#############
+
+variable "create_proxy" {
+    description = "Controls if proxy resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
+    type        = bool
+    default     = false
+}
+
+variable "proxy_vault_serverless_connector_range" {
+  description = "Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC)"
+  type        = string
+  default     = "10.8.3.0/28"
+}
+
+variable "proxy_image" {
+  description = "Proxy Docker image"
+  type        = string
+  default     = "us-central1-docker.pkg.dev/piiano/docker/nginx-proxy:3"
+}
+
+#####################
+### Vault bastion ###
+#####################
+
+variable "create_bastion" {
+  description = "Controls if bastion resources should be created"
+  type        = bool
+  default     = true
+}
+
+variable "pvault_bastion_subnet" {
+  description = "Subnet where Vault bastion will be deployed"
+  type        = string
+  default     = "sb-vault-authorized"
+}
+
+variable "pvault_bastion_subnet_range" {
+  description = "Subnet CIDR range for the Vault bastion VM"
+  type        = string
+  default     = "10.8.0.16/28"
+}
+
+variable "pvault_bastion_zone" {
+  description = "Zone where Vault bastion will be deployed"
+  type        = string
+  default     = null
+}
+
+variable "pvault_cli_repository" {
+  description = "Vault CLI repository name"
   type        = string
   default     = "us-central1-docker.pkg.dev/piiano/docker/pvault-cli"
-}
-
-###########
-### KMS ###
-###########
-variable "kms_ring_name" {
-  description = "KMS Ring name"
-  type        = string
-  default     = "key-ring"
-}
-
-variable "vault_kms_key_name" {
-  description = "KMS key name"
-  type        = string
-  default     = "vault-key"
-}
-
-variable "db_kms_key_name" {
-  description = "KMS key name"
-  type        = string
-  default     = "db-key"
 }
 
 #################
 ### Cloud SQL ###
 #################
-variable "db_instance_name" {
-  description = "Database instance name"
-  type        = string
-  default     = "vault-sql"
-}
 
-variable "db_name" {
-  description = "Vault database name"
+variable "cloudsql_name" {
+  description = "Vault cloud sql name"
   type        = string
   default     = "pvault"
 }
 
-variable "db_version" {
-  description = "Postgres database version"
-  type        = string
-  default     = "POSTGRES_14"
-}
-
-variable "db_zone" {
-  description = "Database zone. if empty fallback to default zone"
+variable "cloudsql_zone" {
+  description = "Vault cloud sql zone. if empty fallback to default zone"
   type        = string
   default     = null
 }
 
-variable "db_region" {
-  description = "Database region. if empty fallback to default region"
+variable "cloudsql_region" {
+  description = "Vault cloud sql region. if empty fallback to default region"
   type        = string
   default     = null
 }
 
-variable "db_user" {
-  description = "Vault database user"
+variable "cloudsql_username" {
+  description = "Vault cloud sql user name"
   type        = string
   default     = "pvault"
 }
 
-variable "db_tier" {
-  description = "Database instance tier"
+variable "cloudsql_tier" {
+  description = "Cloud sql instance tier"
   type        = string
   default     = "db-f1-micro"
 }
 
-variable "db_instance_ip_range" {
-  description = "Database instance IP range"
+variable "cloudsql_instance_ip_range" {
+  description = "Cloud sql instance IP range"
   type        = string
   default     = "10.7.0.0/16"
 }
 
-variable "db_deletion_protection" {
-  description = "Database instance deletion protection"
+variable "cloudsql_deletion_protection" {
+  description = "Cloud sql instance deletion protection"
   type        = bool
   default     = false
 }

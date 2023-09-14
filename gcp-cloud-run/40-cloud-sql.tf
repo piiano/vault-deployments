@@ -4,20 +4,21 @@
 #################
 
 locals {
-  db_region = coalesce(var.db_region, var.default_region)
-  db_zone   = coalesce(var.db_zone, var.default_zone)
+  db_version = "POSTGRES_14"
+  db_zone   = coalesce(var.cloudsql_zone, var.default_zone)
+  db_region = coalesce(var.cloudsql_region, var.default_region)
 }
 
 module "postgresql-db" {
   source              = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
   version             = "15.0.0"
-  name                = "${var.deployment_id}-${var.db_instance_name}"
-  db_name             = var.db_name
-  database_version    = var.db_version
+  name                = "${var.deployment_id}-vault-sql"
+  db_name             = var.cloudsql_name
+  database_version    = local.db_version
   project_id          = var.project
   zone                = local.db_zone
   region              = local.db_region
-  user_name           = var.db_user
+  user_name           = var.cloudsql_username
   disk_autoresize     = true
   encryption_key_name = "${google_kms_crypto_key.db-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.db-encryption-key.name}"
   database_flags = [
@@ -26,9 +27,9 @@ module "postgresql-db" {
       value = "100"
     }
   ]
-  tier = var.db_tier
+  tier = var.cloudsql_tier
 
-  deletion_protection = var.db_deletion_protection
+  deletion_protection = var.cloudsql_deletion_protection
 
   backup_configuration = {
     enabled                        = true
@@ -42,7 +43,7 @@ module "postgresql-db" {
 
   ip_configuration = {
     ipv4_enabled        = false
-    private_network     = module.vpc.network_id
+    private_network     = local.network
     allocated_ip_range  = null
     authorized_networks = []
     require_ssl         = false

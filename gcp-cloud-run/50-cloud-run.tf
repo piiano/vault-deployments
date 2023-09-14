@@ -4,12 +4,14 @@
 ################################
 
 locals {
-  vault_region = coalesce(var.vault_region, var.default_region)
+  pvault_region = coalesce(var.pvault_region, var.default_region)
+
+  env_keys = tolist(keys(var.pvault_env_vars))
 }
 
 resource "google_cloud_run_service" "pvault-server" {
   name     = "${var.deployment_id}-pvault-server"
-  location = local.vault_region
+  location = local.pvault_region
   provider = google-beta
 
   metadata {
@@ -24,7 +26,14 @@ resource "google_cloud_run_service" "pvault-server" {
       timeout_seconds       = 28
       container_concurrency = 100
       containers {
-        image = "${var.image}:${var.vault_version}"
+        image = "${var.pvault_repository}:${var.pvault_tag}"
+        dynamic "env" {
+          for_each = local.env_keys
+          content {
+            name  = local.env_keys[env.key]
+            value = var.pvault_env_vars[local.env_keys[env.key]]
+          }
+        }
         env {
           name  = "PVAULT_LOG_CUSTOMER_IDENTIFIER"
           value = var.pvault_log_customer_identifier
@@ -47,15 +56,15 @@ resource "google_cloud_run_service" "pvault-server" {
         }
         env {
           name  = "PVAULT_DB_NAME"
-          value = var.db_name
+          value = var.cloudsql_name
         }
         env {
           name  = "PVAULT_DB_USER"
-          value = var.db_user
+          value = var.cloudsql_username
         }
         env {
           name  = "PVAULT_SERVICE_LICENSE"
-          value = var.vault_license
+          value = var.pvault_service_license
         }
         env {
           name  = "PVAULT_SERVICE_TIMEOUT_SECONDS"
@@ -64,6 +73,10 @@ resource "google_cloud_run_service" "pvault-server" {
         env {
           name  = "PVAULT_KMS_URI"
           value = "gcp-kms://${google_kms_crypto_key.vault-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.vault-encryption-key.name}"
+        }
+        env {
+          name  = "PVAULT_DEVMODE"
+          value = var.pvault_devmode ? "1" : "0"
         }
         env {
           name = "PVAULT_DB_PASSWORD"

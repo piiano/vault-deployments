@@ -1,23 +1,29 @@
 
-#################
-### Vault CLI ###
-#################
+#####################
+### Vault bastion ###
+#####################
+
 locals {
-  vault_cli_zone                   = coalesce(var.vault_cli_zone, var.default_zone)
-  vault_url                        = google_cloud_run_service.nginx_proxy.status[0].url
+  vault_bastion_zone               = coalesce(var.pvault_bastion_zone, var.default_zone)
+  vault_url                        = var.create_proxy ? google_cloud_run_service.nginx_proxy[0].status[0].url : google_cloud_run_service.pvault-server.status[0].url
   service_account_access_token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
   admin_key_secret_url             = "https://secretmanager.googleapis.com/v1/${google_secret_manager_secret_version.admin_api_key_version.id}:access"
+  bastion_subnetwork               = var.create_vpc ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id : var.bastion_subnet_name
 }
 
-resource "google_service_account" "pvault-cli-sa" {
-  account_id   = "${var.deployment_id}-pvault-cli"
-  display_name = "${var.deployment_id}-pvault-cli service account"
+resource "google_service_account" "pvault-bastion-sa" {
+  count        = var.create_bastion ? 1 : 0
+
+  account_id   = "${var.deployment_id}-pvault-bastion"
+  display_name = "${var.deployment_id}-pvault-bastion service account"
 }
 
-resource "google_compute_instance" "vault-cli" {
-  name         = "${var.deployment_id}-vm-pvault-cli"
+resource "google_compute_instance" "pvault-bastion" {
+  count        = var.create_bastion ? 1 : 0
+
+  name         = "${var.deployment_id}-vm-pvault-bastion"
   machine_type = "e2-micro"
-  zone         = local.vault_cli_zone
+  zone         = local.vault_bastion_zone
 
   boot_disk {
     initialize_params {
@@ -28,12 +34,12 @@ resource "google_compute_instance" "vault-cli" {
   }
 
   network_interface {
-    network    = module.vpc.network_name
-    subnetwork = module.vpc.subnets["${local.client_region}/${var.deployment_id}-${var.vault_cli_subnet}-${var.env}"].id
+    network    = local.network
+    subnetwork = local.bastion_subnetwork
   }
 
   service_account {
-    email  = google_service_account.pvault-cli-sa.email
+    email  = google_service_account.pvault-bastion-sa[0].email
     scopes = ["cloud-platform", "compute-rw"]
   }
 
@@ -46,7 +52,7 @@ ACCESS_TOKEN=\$(curl -s -H 'Metadata-Flavor: Google' ${local.service_account_acc
 VAULT_ADMIN_KEY=\$(curl -s ${local.admin_key_secret_url} --request GET --header \"authorization: Bearer \$ACCESS_TOKEN\" | jq -r '.payload.data' | base64 --decode)
 
 # Create an alias for pvault CLI and configure its address and token.
-alias pvault='docker run -it ${var.cli_image}:${var.vault_version} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
+alias pvault='docker run -it ${var.pvault_cli_repository}:${var.pvault_tag} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
 " > /etc/profile.d/pvault.sh
 
 sudo chmod +x /etc/profile.d/pvault.sh
@@ -54,7 +60,7 @@ sudo chmod +x /etc/profile.d/pvault.sh
 sudo useradd -m tmpuser
 sudo usermod -aG docker tmpuser
 sudo -u tmpuser docker-credential-gcr configure-docker --registries us-central1-docker.pkg.dev
-sudo -u tmpuser docker pull ${var.cli_image}:${var.vault_version}
+sudo -u tmpuser docker pull ${var.pvault_cli_repository}:${var.pvault_tag}
 userdel -d tmpuser
 
 sudo echo "#!/bin/bash
@@ -77,7 +83,8 @@ sudo ./etc/profile.d/shoutdown-inactive.sh
 EOF
 
   depends_on = [
-    module.vpc,
+    module.vpc[0],
+    var.vpc_id,
     google_project_service.apis
   ]
 }
