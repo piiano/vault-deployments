@@ -1,0 +1,322 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.22.6.54827",
+      "templateHash": "9744682486580043023"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure location"
+      }
+    },
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "pvault-server-exp1",
+      "metadata": {
+        "description": "The unique deployment id of this deployment"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name Virtual Network (vnet) to deploy Piiano Vault resources in."
+      }
+    },
+    "vnetSubnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the subnet to deploy Piiano Vault resources in."
+      }
+    },
+    "aksOidcIssuerProfile": {
+      "type": "string",
+      "metadata": {
+        "description": "OIDC issuer profile of the AKS cluster"
+      }
+    },
+    "sqlAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "PostgreSQL admin password"
+      }
+    },
+    "cosmosDBCoordinatorVCores": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "CosmosDB coordinator vCores"
+      }
+    },
+    "cosmosDBServerEdition": {
+      "type": "string",
+      "defaultValue": "BurstableGeneralPurpose",
+      "metadata": {
+        "description": "CosmosDB server edition"
+      }
+    },
+    "cosmosDBCoordinatorStorageQuotaInMb": {
+      "type": "int",
+      "defaultValue": 32768,
+      "metadata": {
+        "description": "CosmosDB coordinator storage quota in MB"
+      }
+    },
+    "cosmosDBNodeStorageQuotaInMb": {
+      "type": "int",
+      "defaultValue": 524288,
+      "metadata": {
+        "description": "CosmosDB node storage quota in MB"
+      }
+    },
+    "keyVaultSKU": {
+      "type": "string",
+      "defaultValue": "standard",
+      "allowedValues": [
+        "standard",
+        "premium"
+      ],
+      "metadata": {
+        "description": "Key Vault SKU"
+      }
+    },
+    "pvaultNamespace": {
+      "type": "string",
+      "defaultValue": "pvault",
+      "metadata": {
+        "description": "Kubernetes namespace of the service account that will be attached to Piiano Vault pods."
+      }
+    },
+    "pvaultServiceAccountName": {
+      "type": "string",
+      "defaultValue": "pvault-sa",
+      "metadata": {
+        "description": "Name of the service account that will be attached to Piiano Vault pods."
+      }
+    }
+  },
+  "variables": {
+    "keyVaultCryptoUserRole": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials",
+      "apiVersion": "2022-01-31-preview",
+      "name": "[format('{0}/{1}', format('{0}-pvault-server', parameters('deploymentId')), format('{0}-pvault-server', parameters('deploymentId')))]",
+      "properties": {
+        "audiences": [
+          "api://AzureADTokenExchange"
+        ],
+        "issuer": "[parameters('aksOidcIssuerProfile')]",
+        "subject": "[format('system:serviceaccount:{0}:{1}', parameters('pvaultNamespace'), parameters('pvaultServiceAccountName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-pvault-server', parameters('deploymentId')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/serverGroupsv2",
+      "apiVersion": "2022-11-08",
+      "name": "[parameters('deploymentId')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "postgresqlVersion": "14",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+        "enableHa": false,
+        "coordinatorVCores": "[parameters('cosmosDBCoordinatorVCores')]",
+        "coordinatorServerEdition": "[parameters('cosmosDBServerEdition')]",
+        "coordinatorStorageQuotaInMb": "[parameters('cosmosDBCoordinatorStorageQuotaInMb')]",
+        "nodeVCores": 4,
+        "nodeCount": 0,
+        "nodeStorageQuotaInMb": "[parameters('cosmosDBNodeStorageQuotaInMb')]",
+        "nodeEnablePublicIpAccess": false
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2023-04-01",
+      "name": "[format('{0}-pg-pe', parameters('deploymentId'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "subnet": {
+          "id": "[parameters('vnetSubnetId')]"
+        },
+        "privateLinkServiceConnections": [
+          {
+            "name": "postgres",
+            "properties": {
+              "privateLinkServiceId": "[resourceId('Microsoft.DBforPostgreSQL/serverGroupsv2', parameters('deploymentId'))]",
+              "groupIds": [
+                "coordinator"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/serverGroupsv2', parameters('deploymentId'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "privatelink.postgres.cosmos.azure.com",
+      "location": "global"
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'privatelink.postgres.cosmos.azure.com', format('{0}-pg-vnl', parameters('deploymentId')))]",
+      "location": "global",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        },
+        "registrationEnabled": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.postgres.cosmos.azure.com')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2023-04-01",
+      "name": "[format('{0}/default', format('{0}-pg-pe', parameters('deploymentId')))]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "postgres",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.postgres.cosmos.azure.com')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.postgres.cosmos.azure.com')]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-pg-pe', parameters('deploymentId')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2022-07-01",
+      "name": "[parameters('deploymentId')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "family": "A",
+          "name": "[parameters('keyVaultSKU')]"
+        },
+        "publicNetworkAccess": "enabled",
+        "enableRbacAuthorization": true,
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/keys",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('deploymentId'), 'pvault-kek')]",
+      "properties": {
+        "kty": "RSA",
+        "keySize": 2048,
+        "keyOps": [
+          "wrapKey",
+          "unwrapKey"
+        ],
+        "attributes": {
+          "enabled": true,
+          "exportable": false
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('deploymentId'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('deploymentId'), 'pvault-server-admin-db-password')]",
+      "properties": {
+        "value": "[parameters('sqlAdminPassword')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('deploymentId'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "[format('{0}-pvault-server', parameters('deploymentId'))]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('deploymentId'))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('deploymentId')), variables('keyVaultCryptoUserRole'), 'pvault-server')]",
+      "properties": {
+        "roleDefinitionId": "[variables('keyVaultCryptoUserRole')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-pvault-server', parameters('deploymentId'))), '2022-01-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('deploymentId'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-pvault-server', parameters('deploymentId')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "cosmosDBHostname": {
+      "type": "string",
+      "metadata": {
+        "description": "The hostname of the PostgreSQL server."
+      },
+      "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/serverGroupsv2', parameters('deploymentId')), '2022-11-08').serverNames[0].fullyQualifiedDomainName]"
+    },
+    "cosmosDBDatabase": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the PostgreSQL database."
+      },
+      "value": "citus"
+    },
+    "cosmosDBUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The username of the PostgreSQL database."
+      },
+      "value": "citus"
+    },
+    "cosmosDBPasswordSecret": {
+      "type": "string",
+      "metadata": {
+        "description": "The Key Vault secret name that holds the password of the PostgreSQL database."
+      },
+      "value": "[resourceId('Microsoft.KeyVault/vaults/secrets', parameters('deploymentId'), 'pvault-server-admin-db-password')]"
+    },
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Key Vault that holds the encryption key and DB secret."
+      },
+      "value": "[parameters('deploymentId')]"
+    },
+    "managedIdentityClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "The client id of the managed identity that will be used by Piiano Vault server to access Key Vault."
+      },
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-pvault-server', parameters('deploymentId'))), '2022-01-31-preview').clientId]"
+    }
+  }
+}
