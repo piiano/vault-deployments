@@ -22,6 +22,26 @@ The module assumes the existence of:
 * Virtual Network (vnet).
 * AKS cluster with [OIDC issuer](https://learn.microsoft.com/en-us/azure/aks/use-oidc-issuer) enabled.
 
+## Usage example
+
+Set your parameters in `main.bicepparam`:
+```
+using 'main.bicep'
+
+param vnetName = 'pvault-server-vnet'
+param vnetSubnetId = '/subscriptions/<your GUID subscription ID>/resourceGroups/<resource group>/providers/Microsoft.Network/virtualNetworks/pvault-server-vnet/subnets/pvault-subnet'
+param aksOidcIssuerProfile = 'https://eastus2.oic.prod-aks.azure.com/...'
+```
+
+Install using:
+```bash
+az deployment group create \
+    --name vault-project \
+    --resource-group vault-resource-group \
+    --template-file ./main.bicep \
+    --parameters ./main.bicepparam
+```
+
 ## Parameters
 
 | Parameter                             | Description                                                                             | Type                    | Default                    |
