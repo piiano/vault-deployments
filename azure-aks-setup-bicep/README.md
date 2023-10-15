@@ -28,8 +28,8 @@ Set your parameters in `main.bicepparam`:
 ```
 using 'main.bicep'
 
-param vnetName = 'pvault-server-exp1'
-param vnetSubnetId = '/subscriptions/<your GUID subscription ID>/resourceGroups/azure-playground-dev/providers/Microsoft.Network/virtualNetworks/pvault-server-exp1/subnets/pvault-subnet'
+param vnetName = 'pvault-server-vnet'
+param vnetSubnetId = '/subscriptions/<your GUID subscription ID>/resourceGroups/<resource group>/providers/Microsoft.Network/virtualNetworks/pvault-server-vnet/subnets/pvault-subnet'
 param aksOidcIssuerProfile = 'https://eastus2.oic.prod-aks.azure.com/...'
 ```
 
