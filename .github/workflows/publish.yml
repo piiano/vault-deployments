@@ -40,6 +40,7 @@ jobs:
       - name: Calculate versions
         id: versions
         run: |
+          set -x
           apprunner_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-apprunner/01-variables.tf`
           ecs_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-ecs/01-variables.tf`
           cloudrun_version=`sed -E -n 's/variable \"vault_version\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' gcp-cloud-run/01-variables.tf`
