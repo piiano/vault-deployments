@@ -39,11 +39,13 @@ jobs:
 
       - name: Calculate versions
         id: versions
+        env:
+          AVER: This application version is # Application version
         run: |
           set -x
           apprunner_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" aws-apprunner/README.md`
-          ecs_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" aws-ecs/01-variables.tf`
-          cloudrun_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" gcp-cloud-run/01-variables.tf`
+          ecs_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" aws-ecs/README.md`
+          cloudrun_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" gcp-cloud-run/README.md`
 
           new_apprunner_version=`npx --yes semver -i ${{ inputs.bump-package }} $apprunner_version`
           new_ecs_version=`npx --yes semver -i ${{ inputs.bump-package }} $ecs_version`
