@@ -2,7 +2,7 @@
 
 This module deploys Piiano Vault on a given AWS region. It will outputs the private Vault URL post deployment.
 
-This application version is 1.8.2 and is compatible with Vault version 1.8.2 .
+This application version is 1.0.2 and is compatible with Vault version 1.8.2 .
 
 ## Solution Architecture
 
