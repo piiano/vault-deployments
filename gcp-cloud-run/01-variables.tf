@@ -119,11 +119,8 @@ variable "firewall" {
 ### Cloud Run ###
 #################
 
-variable "pvault_tag" {
-  description = "Piiano Vault version"
-  type        = string
-  default     = "1.8.2"
-}
+# leave the following in a single line - publish workflow relies on it
+variable "pvault_tag" { default = "1.8.3" }
 
 variable "pvault_region" {
   description = "Vault Region. if empty fallback to default region"
