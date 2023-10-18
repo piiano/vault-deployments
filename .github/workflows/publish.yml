@@ -39,19 +39,18 @@ jobs:
 
       - name: Calculate versions
         id: versions
+        env:
+          AVER: This application version is # Application version
         run: |
           set -x
-          apprunner_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-apprunner/01-variables.tf`
-          ecs_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' aws-ecs/01-variables.tf`
-          cloudrun_version=`sed -E -n 's/variable \"pvault_tag\" \{ default = \"([0-9]\.[0-9]\.[0-9])\" \}/\1/p' gcp-cloud-run/01-variables.tf`
+          apprunner_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" aws-apprunner/README.md`
+          ecs_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" aws-ecs/README.md`
+          cloudrun_version=`sed -E -n "s/$AVER ([0-9]+\.[0-9]+\.[0-9]+).+/\1/p" gcp-cloud-run/README.md`
 
           new_apprunner_version=`npx --yes semver -i ${{ inputs.bump-package }} $apprunner_version`
           new_ecs_version=`npx --yes semver -i ${{ inputs.bump-package }} $ecs_version`
           new_cloudrun_version=`npx --yes semver -i ${{ inputs.bump-package }} $cloudrun_version`
 
-          echo "old_apprunner_version=${apprunner_version}" >> $GITHUB_OUTPUT
-          echo "old_ecs_version=${ecs_version}" >> $GITHUB_OUTPUT
-          echo "old_cloudrun_vrsion=${cloudrun_version}" >> $GITHUB_OUTPUT
           echo "new_apprunner_version=${new_apprunner_version}" >> $GITHUB_OUTPUT
           echo "new_ecs_version=${new_ecs_version}" >> $GITHUB_OUTPUT
           echo "new_cloudrun_version=${new_cloudrun_version}" >> $GITHUB_OUTPUT
