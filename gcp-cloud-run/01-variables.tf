@@ -31,24 +31,6 @@ variable "default_zone" {
   default     = "us-central1-a"
 }
 
-variable "apis" {
-  description = "List of APIs"
-  type        = list(string)
-  default = [
-    "sqladmin.googleapis.com",
-    "run.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "deploymentmanager.googleapis.com",
-    "servicenetworking.googleapis.com",
-    "networkmanagement.googleapis.com",
-    "sql-component.googleapis.com",
-    "secretmanager.googleapis.com",
-    "iamcredentials.googleapis.com",
-    "iam.googleapis.com",
-    "cloudkms.googleapis.com"
-  ]
-}
-
 variable "apis_disable_on_destroy" {
   description = "Disable APIs on destroy"
   type        = bool
