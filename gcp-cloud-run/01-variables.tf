@@ -49,6 +49,12 @@ variable "apis" {
   ]
 }
 
+variable "apis_disable_on_destroy" {
+  description = "Disable APIs on destroy"
+  type        = bool
+  default     = false
+}
+
 ###############
 ### Network ###
 ###############
