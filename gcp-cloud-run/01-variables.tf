@@ -108,6 +108,8 @@ variable "firewall" {
 #################
 
 # leave the following in a single line - publish workflow relies on it
+
+# Piiano Vault version
 variable "pvault_tag" { default = "1.9.0" }
 
 variable "pvault_region" {
@@ -169,19 +171,19 @@ variable "connector_cloud_run_max_instances" {
 ###########################
 
 variable "client_region" {
-  description = "Client region for cloud load balancer. applicable when create_proxy = true. if empty fallback to default region"
+  description = "Client region for cloud load balancer. Applicable when create_proxy = true. if empty fallback to default region"
   type        = string
   default     = null
 }
 
 variable "ilb_frontend_range" {
-  description = "Frontend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
+  description = "Frontend range for cloud load balancer. Applicable when create_proxy = true. /26 CIDR range"
   type        = string
   default     = "10.8.1.0/26"
 }
 
 variable "ilb_backend_range" {
-  description = "Backend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
+  description = "Backend range for cloud load balancer. Applicable when create_proxy = true. /26 CIDR range"
   type        = string
   default     = "10.8.0.64/26"
 }
@@ -191,7 +193,7 @@ variable "ilb_backend_range" {
 #############
 
 variable "create_proxy" {
-  description = "Controls if proxy resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
+  description = "Controls if proxy resources should be created. See README for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture)"
   type        = bool
   default     = false
 }
