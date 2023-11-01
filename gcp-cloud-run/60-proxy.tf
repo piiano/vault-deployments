@@ -86,6 +86,8 @@ module "proxy_internal_load_balancer" {
   source            = "./internal-load-balancer"
   prefix            = "${var.deployment_id}-proxy"
   region            = local.client_region
+  ssl_certificate = var.create_proxy ? file("cert.pem") : null
+  ssl_certificate_private_key = var.create_proxy ? file("private_key.pem") : null
   cloud_run_name    = google_cloud_run_service.nginx_proxy[0].name
   network_id        = local.network
   backend_ip_range  = var.ilb_backend_range
