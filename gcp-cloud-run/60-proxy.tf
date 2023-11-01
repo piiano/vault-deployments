@@ -12,7 +12,7 @@ locals {
 }
 
 resource "google_cloud_run_service" "nginx_proxy" {
-  count    = var.create_proxy ? 1 : 0
+  count = var.create_proxy ? 1 : 0
 
   name     = "${var.deployment_id}-nginx-proxy"
   location = local.client_region
@@ -51,14 +51,14 @@ resource "google_cloud_run_service" "nginx_proxy" {
 }
 
 resource "google_service_account" "proxy_sa" {
-  count        = var.create_proxy ? 1 : 0
+  count = var.create_proxy ? 1 : 0
 
   account_id   = "${var.deployment_id}-vault-proxy"
   display_name = "${var.deployment_id}-proxy service account"
 }
 
 resource "google_project_iam_member" "vault_client" {
-  count   = var.create_proxy ? 1 : 0
+  count = var.create_proxy ? 1 : 0
 
   project = var.project
   role    = "roles/run.invoker"
@@ -71,26 +71,26 @@ resource "google_project_iam_member" "vault_client" {
 }
 
 resource "google_cloud_run_service_iam_policy" "proxy_noauth" {
-  count       = var.create_proxy ? 1 : 0
+  count = var.create_proxy ? 1 : 0
 
-  location    = google_cloud_run_service.nginx_proxy[0].location
-  project     = google_cloud_run_service.nginx_proxy[0].project
-  service     = google_cloud_run_service.nginx_proxy[0].name
+  location = google_cloud_run_service.nginx_proxy[0].location
+  project  = google_cloud_run_service.nginx_proxy[0].project
+  service  = google_cloud_run_service.nginx_proxy[0].name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 
 module "proxy_internal_load_balancer" {
-  count             = var.create_proxy ? 1 : 0
+  count = var.create_proxy ? 1 : 0
 
-  source            = "./internal-load-balancer"
-  prefix            = "${var.deployment_id}-proxy"
-  region            = local.client_region
-  ssl_certificate = var.create_proxy ? file("cert.pem") : null
+  source                      = "./internal-load-balancer"
+  prefix                      = "${var.deployment_id}-proxy"
+  region                      = local.client_region
+  ssl_certificate             = var.create_proxy ? file("cert.pem") : null
   ssl_certificate_private_key = var.create_proxy ? file("private_key.pem") : null
-  cloud_run_name    = google_cloud_run_service.nginx_proxy[0].name
-  network_id        = local.network
-  backend_ip_range  = var.ilb_backend_range
-  frontend_ip_range = var.ilb_frontend_range
-  timeout           = 30
+  cloud_run_name              = google_cloud_run_service.nginx_proxy[0].name
+  network_id                  = local.network
+  backend_ip_range            = var.ilb_backend_range
+  frontend_ip_range           = var.ilb_frontend_range
+  timeout                     = 30
 }

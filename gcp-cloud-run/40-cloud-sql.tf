@@ -5,8 +5,8 @@
 
 locals {
   db_version = "POSTGRES_14"
-  db_zone   = coalesce(var.cloudsql_zone, var.default_zone)
-  db_region = coalesce(var.cloudsql_region, var.default_region)
+  db_zone    = coalesce(var.cloudsql_zone, var.default_zone)
+  db_region  = coalesce(var.cloudsql_region, var.default_region)
 }
 
 module "postgresql-db" {

@@ -12,14 +12,14 @@ locals {
 }
 
 resource "google_service_account" "pvault-bastion-sa" {
-  count        = var.create_bastion ? 1 : 0
+  count = var.create_bastion ? 1 : 0
 
   account_id   = "${var.deployment_id}-pvault-bastion"
   display_name = "${var.deployment_id}-pvault-bastion service account"
 }
 
 resource "google_compute_instance" "pvault-bastion" {
-  count        = var.create_bastion ? 1 : 0
+  count = var.create_bastion ? 1 : 0
 
   name         = "${var.deployment_id}-vm-pvault-bastion"
   machine_type = "e2-micro"

@@ -152,7 +152,7 @@ variable "pvault_devmode" {
 variable "pvault_env_vars" {
   description = "A map of environment variables and values to set for the Pvault service. Except the following: PVAULT_LOG_CUSTOMER_IDENTIFIER, PVAULT_LOG_CUSTOMER_ENV, PVAULT_TLS_ENABLE, PVAULT_DB_REQUIRE_TLS, PVAULT_DB_HOSTNAME, PVAULT_DB_NAME, PVAULT_DB_USER, PVAULT_SERVICE_LICENSE, PVAULT_SERVICE_TIMEOUT_SECONDS, PVAULT_KMS_URI, PVAULT_DEVMODE, PVAULT_DB_PASSWORD, PVAULT_SERVICE_ADMIN_API_KEY. See [https://piiano.com/docs/guides/configure/environment-variables](https://piiano.com/docs/guides/configure/environment-variables) for more details."
   type        = map(string)
-  default     = {
+  default = {
     # Add environment variables as needed, for example:
     # PVAULT_FEATURES_MASK_LICENSE = true
   }
@@ -191,9 +191,9 @@ variable "ilb_backend_range" {
 #############
 
 variable "create_proxy" {
-    description = "Controls if proxy resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
-    type        = bool
-    default     = false
+  description = "Controls if proxy resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
+  type        = bool
+  default     = false
 }
 
 variable "proxy_vault_serverless_connector_range" {
