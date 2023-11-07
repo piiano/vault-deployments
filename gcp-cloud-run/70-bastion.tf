@@ -22,7 +22,7 @@ resource "google_compute_instance" "pvault-bastion" {
   count        = var.create_bastion ? 1 : 0
 
   name         = "${var.deployment_id}-vm-pvault-bastion"
-  machine_type = "e2-micro"
+  machine_type = "e2-small"
   zone         = local.vault_bastion_zone
 
   boot_disk {
