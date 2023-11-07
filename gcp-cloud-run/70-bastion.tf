@@ -52,7 +52,7 @@ ACCESS_TOKEN=\$(curl -s -H 'Metadata-Flavor: Google' ${local.service_account_acc
 VAULT_ADMIN_KEY=\$(curl -s ${local.admin_key_secret_url} --request GET --header \"authorization: Bearer \$ACCESS_TOKEN\" | jq -r '.payload.data' | base64 --decode)
 
 # Create an alias for pvault CLI and configure its address and token.
-alias pvault='docker run -it ${var.pvault_cli_repository}:${var.pvault_tag} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
+alias pvault='docker run -it ${var.pvault_cli_repository}:${var.pvault_tag} -v $(pwd):/pwd -w /pwd --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
 " > /etc/profile.d/pvault.sh
 
 sudo chmod +x /etc/profile.d/pvault.sh
