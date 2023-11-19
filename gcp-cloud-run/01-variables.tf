@@ -31,22 +31,10 @@ variable "default_zone" {
   default     = "us-central1-a"
 }
 
-variable "apis" {
-  description = "List of APIs"
-  type        = list(string)
-  default = [
-    "sqladmin.googleapis.com",
-    "run.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "deploymentmanager.googleapis.com",
-    "servicenetworking.googleapis.com",
-    "networkmanagement.googleapis.com",
-    "sql-component.googleapis.com",
-    "secretmanager.googleapis.com",
-    "iamcredentials.googleapis.com",
-    "iam.googleapis.com",
-    "cloudkms.googleapis.com"
-  ]
+variable "apis_disable_on_destroy" {
+  description = "Disable APIs on destroy"
+  type        = bool
+  default     = false
 }
 
 ###############
@@ -120,6 +108,8 @@ variable "firewall" {
 #################
 
 # leave the following in a single line - publish workflow relies on it
+
+# Piiano Vault version
 variable "pvault_tag" { default = "1.9.0" }
 
 variable "pvault_region" {
@@ -164,7 +154,7 @@ variable "pvault_devmode" {
 variable "pvault_env_vars" {
   description = "A map of environment variables and values to set for the Pvault service. Except the following: PVAULT_LOG_CUSTOMER_IDENTIFIER, PVAULT_LOG_CUSTOMER_ENV, PVAULT_TLS_ENABLE, PVAULT_DB_REQUIRE_TLS, PVAULT_DB_HOSTNAME, PVAULT_DB_NAME, PVAULT_DB_USER, PVAULT_SERVICE_LICENSE, PVAULT_SERVICE_TIMEOUT_SECONDS, PVAULT_KMS_URI, PVAULT_DEVMODE, PVAULT_DB_PASSWORD, PVAULT_SERVICE_ADMIN_API_KEY. See [https://piiano.com/docs/guides/configure/environment-variables](https://piiano.com/docs/guides/configure/environment-variables) for more details."
   type        = map(string)
-  default     = {
+  default = {
     # Add environment variables as needed, for example:
     # PVAULT_FEATURES_MASK_LICENSE = true
   }
@@ -181,19 +171,19 @@ variable "connector_cloud_run_max_instances" {
 ###########################
 
 variable "client_region" {
-  description = "Client region for cloud load balancer. applicable when create_proxy = true. if empty fallback to default region"
+  description = "Client region for cloud load balancer. Applicable when create_proxy = true. if empty fallback to default region"
   type        = string
   default     = null
 }
 
 variable "ilb_frontend_range" {
-  description = "Frontend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
+  description = "Frontend range for cloud load balancer. Applicable when create_proxy = true. /26 CIDR range"
   type        = string
   default     = "10.8.1.0/26"
 }
 
 variable "ilb_backend_range" {
-  description = "Backend range for cloud load balancer. applicable when create_proxy = true. /26 CIDR range"
+  description = "Backend range for cloud load balancer. Applicable when create_proxy = true. /26 CIDR range"
   type        = string
   default     = "10.8.0.64/26"
 }
@@ -203,9 +193,9 @@ variable "ilb_backend_range" {
 #############
 
 variable "create_proxy" {
-    description = "Controls if proxy resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
-    type        = bool
-    default     = false
+  description = "Controls if proxy resources should be created. See README for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture)"
+  type        = bool
+  default     = false
 }
 
 variable "proxy_vault_serverless_connector_range" {

@@ -17,6 +17,16 @@ variable "network_id" {
   type = string
 }
 
+variable "ssl_certificate" {
+  description = "SSL certificate for Cloud Load Balancer"
+  type        = string
+}
+
+variable "ssl_certificate_private_key" {
+  description = "SSL certificate private key for Cloud Load Balancer"
+  type        = string
+}
+
 variable "frontend_ip_range" {
   description = "Cloud Load Balancer Frontend /26 CIDR range"
   type        = string

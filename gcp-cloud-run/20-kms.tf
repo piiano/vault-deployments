@@ -23,12 +23,20 @@ resource "google_kms_crypto_key" "db-encryption-key" {
   name     = "${var.deployment_id}-db-key"
   key_ring = google_kms_key_ring.db_keyring.id
   purpose  = "ENCRYPT_DECRYPT"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "google_kms_crypto_key" "vault-encryption-key" {
   name     = "${var.deployment_id}-vault-key"
   key_ring = google_kms_key_ring.vault_keyring.id
   purpose  = "ENCRYPT_DECRYPT"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "google_project_service_identity" "gcp_sa_cloud_sql" {

@@ -65,8 +65,8 @@ resource "google_compute_region_ssl_certificate" "default" {
   region = var.region
   name   = "${var.prefix}-ilb-certificate"
 
-  certificate = file("cert.pem")
-  private_key = file("private_key.pem")
+  certificate = var.ssl_certificate
+  private_key = var.ssl_certificate_private_key
 }
 
 resource "google_compute_region_target_https_proxy" "default" {

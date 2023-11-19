@@ -152,10 +152,3 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
-
-resource "google_project_service" "apis" {
-  for_each                   = toset(var.apis)
-  project                    = var.project
-  disable_dependent_services = false
-  service                    = each.key
-}

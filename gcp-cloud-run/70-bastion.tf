@@ -12,14 +12,14 @@ locals {
 }
 
 resource "google_service_account" "pvault-bastion-sa" {
-  count        = var.create_bastion ? 1 : 0
+  count = var.create_bastion ? 1 : 0
 
   account_id   = "${var.deployment_id}-pvault-bastion"
   display_name = "${var.deployment_id}-pvault-bastion service account"
 }
 
 resource "google_compute_instance" "pvault-bastion" {
-  count        = var.create_bastion ? 1 : 0
+  count = var.create_bastion ? 1 : 0
 
   name         = "${var.deployment_id}-vm-pvault-bastion"
   machine_type = "e2-small"
@@ -52,7 +52,7 @@ ACCESS_TOKEN=\$(curl -s -H 'Metadata-Flavor: Google' ${local.service_account_acc
 VAULT_ADMIN_KEY=\$(curl -s ${local.admin_key_secret_url} --request GET --header \"authorization: Bearer \$ACCESS_TOKEN\" | jq -r '.payload.data' | base64 --decode)
 
 # Create an alias for pvault CLI and configure its address and token.
-alias pvault='docker run -it ${var.pvault_cli_repository}:${var.pvault_tag} --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
+alias pvault='docker run -u $(id -u):$(id -g) -it ${var.pvault_cli_repository}:${var.pvault_tag} -v $(pwd):/pwd -w /pwd --addr ${local.vault_url} --authtoken \$VAULT_ADMIN_KEY'
 " > /etc/profile.d/pvault.sh
 
 sudo chmod +x /etc/profile.d/pvault.sh
