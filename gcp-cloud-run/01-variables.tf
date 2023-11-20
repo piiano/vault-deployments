@@ -194,6 +194,18 @@ variable "ilb_backend_range" {
   default     = "10.8.0.64/26"
 }
 
+variable "ilb_ssl_certificate" {
+  description = "The SSL certificate pem file for the cloud load balancer. Applicable when create_ilb = true."
+  type        = string
+  default     = null
+}
+
+variable "ilb_ssl_certificate_private_key" {
+  description = "The SSL certificate private key pem file for the cloud load balancer. Applicable when create_ilb = true."
+  type        = string
+  default     = null
+}
+
 #############
 ### Proxy ###
 #############
