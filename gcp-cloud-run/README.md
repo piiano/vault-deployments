@@ -104,9 +104,9 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | 4.84.0 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | 4.84.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
+| <a name="provider_google"></a> [google](#provider\_google) | >= 4.73.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 4.73.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
 ## Modules
 
@@ -169,6 +169,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_cloudsql_zone"></a> [cloudsql\_zone](#input\_cloudsql\_zone) | Vault cloud sql zone. if empty fallback to default zone | `string` | `null` | no |
 | <a name="input_connector_cloud_run_max_instances"></a> [connector\_cloud\_run\_max\_instances](#input\_connector\_cloud\_run\_max\_instances) | Maximum number of instances used by VPC Serverless connector | `number` | `4` | no |
 | <a name="input_create_bastion"></a> [create\_bastion](#input\_create\_bastion) | Controls if bastion resources should be created | `bool` | `true` | no |
+| <a name="input_create_ilb"></a> [create\_ilb](#input\_create\_ilb) | Controls if Cloud Internal Load Balancer resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details. | `bool` | `false` | no |
 | <a name="input_create_proxy"></a> [create\_proxy](#input\_create\_proxy) | Controls if proxy resources should be created. See README for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) | `bool` | `false` | no |
 | <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | Controls if VPC should be created (it affects almost all resources) | `bool` | `true` | no |
 | <a name="input_default_region"></a> [default\_region](#input\_default\_region) | Default region where resources without a specified region will be deployed | `string` | `"us-central1"` | no |

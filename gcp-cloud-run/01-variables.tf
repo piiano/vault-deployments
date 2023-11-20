@@ -170,6 +170,12 @@ variable "connector_cloud_run_max_instances" {
 ### Cloud Load Balancer ###
 ###########################
 
+variable "create_ilb" {
+  description = "Controls if Cloud Internal Load Balancer resources should be created. See readme for more details on deployment modes [https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture](https://github.com/piiano/vault-deployments/blob/main/gcp-cloud-run/README.md#solution-architecture) for more details."
+  type        = bool
+  default     = false
+}
+
 variable "client_region" {
   description = "Client region for cloud load balancer. Applicable when create_proxy = true. if empty fallback to default region"
   type        = string
