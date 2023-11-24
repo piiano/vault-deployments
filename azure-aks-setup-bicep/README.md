@@ -90,4 +90,7 @@ az deployment group create \
 | `cosmosDBUsername`        | string | The username of the PostgreSQL database.                                                            |
 | `cosmosDBPasswordSecret`  | string | The Key Vault secret name that holds the password of the PostgreSQL database.                       |
 | `keyVaultName`            | string | The name of the Key Vault that holds the encryption key and DB secret.                              |
+| `keyVaultUri`             | string | The URI of the Key Vault that holds the encryption key and DB secret.                               |
+| `keyVaultKeyName`         | string | The name of the Key Vault key that will be used by Piiano Vault KMS.                                |
+| `KeyVaultKeyVersion`      | string | The version of the Key Vault key that will be used by Piiano Vault KMS.                             |
 | `managedIdentityClientId` | string | The client id of the managed identity that will be used by Piiano Vault server to access Key Vault. |
