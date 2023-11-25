@@ -175,6 +175,12 @@ resource dbAdminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = 
 
 @description('The name of the Key Vault that holds the encryption key and DB secret.')
 output keyVaultName string = keyVault.name
+@description('The URI of the Key Vault that holds the encryption key and DB secret.')
+output keyVaultUri string = keyVault.properties.vaultUri
+@description('The name of the Key Vault key that will be used by Piiano Vault KMS.')
+output keyVaultKeyName string = kek.name
+@description('The version of the Key Vault key that will be used by Piiano Vault KMS.')
+output KeyVaultKeyVersion string = last(split(kek.properties.keyUriWithVersion, '/'))
 
 // --------- IAM ---------
 resource pvaultServerMI 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {

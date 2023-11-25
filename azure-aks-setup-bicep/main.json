@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.22.6.54827",
-      "templateHash": "9744682486580043023"
+      "templateHash": "8694204166368788709"
     }
   },
   "parameters": {
@@ -310,6 +310,27 @@
         "description": "The name of the Key Vault that holds the encryption key and DB secret."
       },
       "value": "[parameters('deploymentId')]"
+    },
+    "keyVaultUri": {
+      "type": "string",
+      "metadata": {
+        "description": "The URI of the Key Vault that holds the encryption key and DB secret."
+      },
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('deploymentId')), '2022-07-01').vaultUri]"
+    },
+    "keyVaultKeyName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Key Vault key that will be used by Piiano Vault KMS."
+      },
+      "value": "pvault-kek"
+    },
+    "KeyVaultKeyVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "The version of the Key Vault key that will be used by Piiano Vault KMS."
+      },
+      "value": "[last(split(reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('deploymentId'), 'pvault-kek'), '2022-07-01').keyUriWithVersion, '/'))]"
     },
     "managedIdentityClientId": {
       "type": "string",
