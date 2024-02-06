@@ -1,2 +1,5 @@
 # Set the end of line to be LF for all files
 * text eol=lf
+
+# Exclude PNG files from being treated as text
+*.png -text
