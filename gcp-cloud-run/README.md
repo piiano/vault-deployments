@@ -2,7 +2,7 @@
 
 This module deploys Piiano Vault on a given GCP region. It will output the private Vault URL post deployment.
 
-This application version is 1.0.11 and is compatible with Vault version 1.10.3 .
+This application version is 1.0.12 and is compatible with Vault version 1.10.4 .
 
 ## Solution Architecture
 
@@ -86,7 +86,7 @@ vault_url = "https://`deployment id`-pvault-server-<random chars>-uc.a.run.app"
 To check that the Vault is working as expected run the following from inside the application VPC. Optionally, the deployment script can deploy a bastion machine for this purpose:
 
 ```sh
-alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.10.3"
+alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.10.4"
 pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager>' selftest basic
 ```
 
