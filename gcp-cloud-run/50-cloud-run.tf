@@ -44,7 +44,7 @@ resource "google_cloud_run_service" "pvault-server" {
         }
         env {
           name  = "PVAULT_LOG_CUSTOMER_REGION"
-          value = pvault_region
+          value = local.pvault_region
         }
         env {
           name  = "PVAULT_TLS_ENABLE"
