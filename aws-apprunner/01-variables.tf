@@ -99,7 +99,7 @@ variable "pvault_repository" {
   default     = "public.ecr.aws/s4s5s6q8/pvault-server"
 }
 
-variable "pvault_tag" { default = "1.11.1" }
+variable "pvault_tag" { default = "1.11.2" }
 variable "pvault_port" {
   description = "Pvault application port number"
   type        = string
