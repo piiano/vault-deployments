@@ -2,7 +2,7 @@
 
 This module deploys Piiano Vault on a given GCP region. It will output the private Vault URL post deployment.
 
-This application version is 1.0.17 and is compatible with Vault version 1.11.4 .
+This application version is 1.0.18 and is compatible with Vault version 1.11.4 .
 
 ## Solution Architecture
 
