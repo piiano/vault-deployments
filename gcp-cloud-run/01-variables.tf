@@ -110,7 +110,7 @@ variable "firewall" {
 # leave the following in a single line - publish workflow relies on it
 
 # Piiano Vault version
-variable "pvault_tag" { default = "1.11.4" }
+variable "pvault_tag" { default = "1.12.0" }
 
 variable "pvault_region" {
   description = "Vault Region. if empty fallback to default region"
