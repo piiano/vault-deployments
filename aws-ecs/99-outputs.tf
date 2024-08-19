@@ -7,5 +7,5 @@ output "authtoken" {
 }
 
 output "bastion_instance_id" {
-  value = var.create_bastion  ? aws_instance.bastion[0].id : null
+  value = var.create_bastion ? aws_instance.bastion[0].id : null
 }
