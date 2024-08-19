@@ -1,35 +1,36 @@
-
 #################
 ### Cloud SQL ###
 #################
 
 locals {
-  db_version = "POSTGRES_14"
-  db_zone    = coalesce(var.cloudsql_zone, var.default_zone)
+  db_version = "POSTGRES_15"
   db_region  = coalesce(var.cloudsql_region, var.default_region)
+  db_zone    = coalesce(var.cloudsql_zone, var.default_zone, data.google_compute_zones.db_zones.names[0])
 }
 
 module "postgresql-db" {
-  source              = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
-  version             = "15.0.0"
-  name                = "${var.deployment_id}-vault-sql"
-  db_name             = var.cloudsql_name
+  source  = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
+  version = "21.0.0"
+
+  project_id = var.project
+  zone       = local.db_zone
+  region     = local.db_region
+
+  name      = "${var.deployment_id}-vault-sql"
+  db_name   = var.cloudsql_name
+  user_name = var.cloudsql_username
+
   database_version    = local.db_version
-  project_id          = var.project
-  zone                = local.db_zone
-  region              = local.db_region
-  user_name           = var.cloudsql_username
+  tier                = var.cloudsql_tier
   disk_autoresize     = true
-  encryption_key_name = "${google_kms_crypto_key.db-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.db-encryption-key.name}"
+  encryption_key_name = var.cloudsql_encryption_key_name
+
   database_flags = [
     {
       name  = "max_connections"
       value = "100"
     }
   ]
-  tier = var.cloudsql_tier
-
-  deletion_protection = var.cloudsql_deletion_protection
 
   backup_configuration = {
     enabled                        = true
@@ -46,11 +47,14 @@ module "postgresql-db" {
     private_network     = local.network
     allocated_ip_range  = null
     authorized_networks = []
-    require_ssl         = false
+    # https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1/instances#sslmode
+    ssl_mode = "ENCRYPTED_ONLY"
   }
 
-  create_timeout = "30m"
-  update_timeout = "20m"
+  deletion_protection = var.cloudsql_deletion_protection
+
+  create_timeout = "60m"
+  update_timeout = "60m"
 
   depends_on = [
     google_service_networking_connection.private_vpc_connection,

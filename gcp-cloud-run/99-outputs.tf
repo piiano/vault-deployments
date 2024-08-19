@@ -1,4 +1,3 @@
-
 output "vault_url" {
   description = "The URL of the Vault server"
   value       = local.vault_url
