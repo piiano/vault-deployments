@@ -1,4 +1,3 @@
-
 ###########
 ### KMS ###
 ###########
@@ -47,11 +46,11 @@ resource "google_project_service_identity" "gcp_sa_cloud_sql" {
 resource "google_kms_crypto_key_iam_member" "crypto_key_cloud_run" {
   crypto_key_id = google_kms_crypto_key.vault-encryption-key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:${google_service_account.pvault-server-sa.email}"
+  member        = google_service_account.pvault-server-sa.member
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key_db" {
   crypto_key_id = google_kms_crypto_key.db-encryption-key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:${google_project_service_identity.gcp_sa_cloud_sql.email}"
+  member        = google_project_service_identity.gcp_sa_cloud_sql.member
 }

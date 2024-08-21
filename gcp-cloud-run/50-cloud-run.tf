@@ -1,122 +1,129 @@
-
 ################################
 ### Cloud Run (Vault Server) ###
 ################################
 
 locals {
-  pvault_region = coalesce(var.pvault_region, var.default_region)
-
-  env_keys = tolist(keys(var.pvault_env_vars))
+  pvault_region           = coalesce(var.pvault_region, var.default_region)
+  pvault_db_socket_folder = "/cloudsql"
+  # Override certain variables
+  pvault_env = merge(
+    var.pvault_env_vars,
+    {
+      "PVAULT_LOG_CUSTOMER_IDENTIFIER" = var.pvault_log_customer_identifier,
+      "PVAULT_LOG_CUSTOMER_ENV"        = var.pvault_log_customer_env,
+      "PVAULT_LOG_CUSTOMER_REGION"     = var.pvault_region,
+      "PVAULT_TLS_ENABLE"              = "false",
+      "PVAULT_DB_REQUIRE_TLS"          = "false",
+      "PVAULT_DB_HOSTNAME"             = "${local.pvault_db_socket_folder}/${module.postgresql-db.instance_connection_name}",
+      "PVAULT_DB_NAME"                 = var.cloudsql_name,
+      "PVAULT_DB_USER"                 = var.cloudsql_username,
+      "PVAULT_SERVICE_LICENSE"         = var.pvault_service_license,
+      "PVAULT_KMS_URI"                 = "gcp-kms://${google_kms_crypto_key.vault-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.vault-encryption-key.name}",
+      "PVAULT_DEVMODE"                 = tostring(var.pvault_devmode),
+    }
+  )
 }
 
-resource "google_cloud_run_service" "pvault-server" {
+resource "google_cloud_run_v2_service" "pvault-server" {
   name     = "${var.deployment_id}-pvault-server"
   location = local.pvault_region
-  provider = google-beta
+  client   = "terraform"
+  ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
 
-  metadata {
-    annotations = {
-      "run.googleapis.com/client-name" = "terraform"
-      "run.googleapis.com/ingress"     = "internal"
-    }
+  annotations = {
+    "piiano.io/deployment_id" = var.deployment_id
   }
 
   template {
-    spec {
-      timeout_seconds       = 28
-      container_concurrency = 100
-      containers {
-        image = "${var.pvault_repository}:${var.pvault_tag}"
-        dynamic "env" {
-          for_each = local.env_keys
-          content {
-            name  = local.env_keys[env.key]
-            value = var.pvault_env_vars[local.env_keys[env.key]]
-          }
-        }
-        env {
-          name  = "PVAULT_LOG_CUSTOMER_IDENTIFIER"
-          value = var.pvault_log_customer_identifier
-        }
-        env {
-          name  = "PVAULT_LOG_CUSTOMER_ENV"
-          value = var.pvault_log_customer_env
-        }
-        env {
-          name  = "PVAULT_LOG_CUSTOMER_REGION"
-          value = local.pvault_region
-        }
-        env {
-          name  = "PVAULT_TLS_ENABLE"
-          value = "false"
-        }
-        env {
-          name  = "PVAULT_DB_REQUIRE_TLS"
-          value = "false"
-        }
-        env {
-          name  = "PVAULT_DB_HOSTNAME"
-          value = module.postgresql-db.private_ip_address
-        }
-        env {
-          name  = "PVAULT_DB_NAME"
-          value = var.cloudsql_name
-        }
-        env {
-          name  = "PVAULT_DB_USER"
-          value = var.cloudsql_username
-        }
-        env {
-          name  = "PVAULT_SERVICE_LICENSE"
-          value = var.pvault_service_license
-        }
-        env {
-          name  = "PVAULT_SERVICE_TIMEOUT_SECONDS"
-          value = "27"
-        }
-        env {
-          name  = "PVAULT_KMS_URI"
-          value = "gcp-kms://${google_kms_crypto_key.vault-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.vault-encryption-key.name}"
-        }
-        env {
-          name  = "PVAULT_DEVMODE"
-          value = var.pvault_devmode ? "1" : "0"
-        }
-        env {
-          name = "PVAULT_DB_PASSWORD"
-          value_from {
-            secret_key_ref {
-              name = google_secret_manager_secret.db_password_secret.secret_id
-              key  = "latest"
-            }
-          }
-        }
-        env {
-          name = "PVAULT_SERVICE_ADMIN_API_KEY"
-          value_from {
-            secret_key_ref {
-              name = google_secret_manager_secret.admin_api_key.secret_id
-              key  = "latest"
-            }
-          }
-        }
-        ports {
-          container_port = 8123
-        }
-      }
-      service_account_name = google_service_account.pvault-server-sa.email
+    service_account = google_service_account.pvault-server-sa.email
+
+    execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"
+    timeout                          = "28s"
+    max_instance_request_concurrency = var.cloud_run_scaling.max_instance_request_concurrency
+    scaling {
+      min_instance_count = var.cloud_run_scaling.min_instance_count
+      max_instance_count = var.cloud_run_scaling.max_instance_count
     }
-    metadata {
-      annotations = {
-        "autoscaling.knative.dev/maxScale"        = "5"
-        "run.googleapis.com/cloudsql-instances"   = module.postgresql-db.instance_connection_name
-        "run.googleapis.com/client-name"          = "terraform"
-        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector_vault_cloud_run.id
-        "run.googleapis.com/vpc-access-egress"    = "private-ranges-only"
+
+    annotations = {
+      "piiano.io/deployment_id" = var.deployment_id
+    }
+
+    containers {
+      image = "${var.pvault_repository}:${var.pvault_tag}"
+
+      resources {
+        limits = var.cloud_run_resources.limits
       }
+
+      dynamic "env" {
+        for_each = local.pvault_env
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+      env {
+        name = "PVAULT_DB_PASSWORD"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.db_password_secret.secret_id
+            version = "latest"
+          }
+        }
+      }
+      env {
+        name = "PVAULT_SERVICE_ADMIN_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.admin_api_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      ports {
+        container_port = 8123
+      }
+
+      startup_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 1
+        failure_threshold     = 60
+        http_get {
+          path = "/api/pvlt/1.0/data/info/health"
+        }
+      }
+      liveness_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 5
+        period_seconds        = 10
+        failure_threshold     = 3
+        http_get {
+          path = "/api/pvlt/1.0/data/info/health"
+        }
+      }
+
+      volume_mounts {
+        name       = "cloudsql"
+        mount_path = local.pvault_db_socket_folder
+      }
+    }
+
+    volumes {
+      name = "cloudsql"
+      cloud_sql_instance {
+        instances = [module.postgresql-db.instance_connection_name]
+      }
+    }
+
+    vpc_access {
+      connector = google_vpc_access_connector.connector_vault_cloud_run.id
+      egress    = "PRIVATE_RANGES_ONLY"
     }
   }
-  autogenerate_revision_name = true
+
   depends_on = [
     google_secret_manager_secret_iam_member.cloud_run_secrets_access,
     google_kms_crypto_key_iam_member.crypto_key_cloud_run
@@ -131,7 +138,7 @@ resource "google_service_account" "pvault-server-sa" {
 resource "google_project_iam_member" "pvault_sql_client" {
   project = var.project
   role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${google_service_account.pvault-server-sa.email}"
+  member  = google_service_account.pvault-server-sa.member
 
   condition {
     expression  = "resource.name == 'projects/${var.project}/instances/${module.postgresql-db.instance_name}' && resource.type == 'sqladmin.googleapis.com/Instance' && resource.service == 'sqladmin.googleapis.com'"
@@ -140,19 +147,10 @@ resource "google_project_iam_member" "pvault_sql_client" {
   }
 }
 
-data "google_iam_policy" "noauth" {
-  binding {
-    role = "roles/run.invoker"
-    members = [
-      "allUsers",
-    ]
-  }
-}
-
-resource "google_cloud_run_service_iam_policy" "noauth" {
-  location = google_cloud_run_service.pvault-server.location
-  project  = google_cloud_run_service.pvault-server.project
-  service  = google_cloud_run_service.pvault-server.name
+resource "google_cloud_run_v2_service_iam_policy" "noauth" {
+  location = google_cloud_run_v2_service.pvault-server.location
+  project  = google_cloud_run_v2_service.pvault-server.project
+  name     = google_cloud_run_v2_service.pvault-server.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }

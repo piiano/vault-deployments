@@ -1,14 +1,13 @@
-
-##############
-### Locals ###
-##############
+###############
+### Network ###
+###############
 
 locals {
   network = var.create_vpc ? module.vpc[0].network_id : var.vpc_id
 
   subnets = concat(
     var.create_vpc ? [for subnet in var.subnets : merge(subnet, {
-      subnet_name = "${var.deployment_id}-${subnet.subnet_name}-${var.env}"
+      subnet_name   = "${var.deployment_id}-${subnet.subnet_name}-${var.env}"
       subnet_region = coalesce(local.pvault_region, var.default_region),
     })] : [],
     var.create_vpc ? [
@@ -42,21 +41,18 @@ locals {
   proxy_cn_subnet = var.create_vpc && var.create_proxy ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-sb-proxy-vault-connector-${var.env}"].name : null
 }
 
-###############
-### Network ###
-###############
-
+# VPC
 module "vpc" {
   count = var.create_vpc ? 1 : 0
 
   source  = "terraform-google-modules/network/google"
-  version = "~> 4.0"
+  version = "9.1.0"
 
-  network_name                           = "${var.deployment_id}-vpc-private-piiano"
-  routing_mode                           = "GLOBAL"
-  project_id                             = var.project
-  subnets                                = local.subnets
-  routes                                 = [
+  network_name = "${var.deployment_id}-vpc-private-piiano"
+  routing_mode = "GLOBAL"
+  project_id   = var.project
+  subnets      = local.subnets
+  routes = [
     for r in var.routes : {
       name              = "${var.deployment_id}-${r.name}"
       description       = lookup(r, "description", null)
@@ -64,7 +60,7 @@ module "vpc" {
       next_hop_internet = lookup(r, "next_hop_internet", null)
     }
   ]
-  firewall_rules                         = [
+  firewall_rules = [
     for f in var.firewall : {
       name                    = "${var.deployment_id}-${f.name}"
       direction               = f.direction
@@ -91,8 +87,9 @@ module "vpc" {
 ##############################################
 
 resource "google_compute_global_address" "private_ip_address" {
-  name         = "${var.deployment_id}-vpc-private-piiano-ip-address"
   provider = google-beta
+
+  name         = "${var.deployment_id}-vpc-private-piiano-ip-address"
   purpose      = "VPC_PEERING"
   address_type = "INTERNAL"
 
@@ -102,7 +99,8 @@ resource "google_compute_global_address" "private_ip_address" {
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
-  provider                = google-beta
+  provider = google-beta
+
   network                 = local.network
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
@@ -119,29 +117,36 @@ resource "google_project_service" "vpcaccess_api" {
 }
 
 resource "google_vpc_access_connector" "connector_vault_cloud_run" {
-  name     = "${var.deployment_id}-sql-cn"
   provider = google-beta
-  region   = local.pvault_region
+
+  name   = "${var.deployment_id}-sql-cn"
+  region = local.pvault_region
+
   subnet {
     name = local.vault_cn_subnet
   }
+
   max_throughput = 400
   min_instances  = 2
   max_instances  = var.connector_cloud_run_max_instances
-  depends_on     = [google_project_service.vpcaccess_api]
+
+  depends_on = [google_project_service.vpcaccess_api]
 }
 
 resource "google_vpc_access_connector" "proxy_vault_connector" {
-  count = var.create_proxy ? 1 : 0
-
-  name     = "${var.deployment_id}-proxy-cn"
+  count    = var.create_proxy ? 1 : 0
   provider = google-beta
-  region   = local.client_region
+
+  name   = "${var.deployment_id}-proxy-cn"
+  region = local.client_region
+
   subnet {
     name = local.proxy_cn_subnet
   }
+
   max_throughput = 400
   min_instances  = 2
   max_instances  = var.connector_cloud_run_max_instances
-  depends_on     = [google_project_service.vpcaccess_api]
+
+  depends_on = [google_project_service.vpcaccess_api]
 }

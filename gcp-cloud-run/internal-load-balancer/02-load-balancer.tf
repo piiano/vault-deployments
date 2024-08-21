@@ -1,6 +1,6 @@
-
 resource "google_compute_subnetwork" "vault_ilb_backend_subnet" {
-  provider                 = google-beta
+  provider = google-beta
+
   name                     = "${var.prefix}-ilb-backend-subnet"
   region                   = var.region
   ip_cidr_range            = var.backend_ip_range
@@ -11,7 +11,8 @@ resource "google_compute_subnetwork" "vault_ilb_backend_subnet" {
 }
 
 resource "google_compute_subnetwork" "vault_ilb_frontend_subnet" {
-  provider      = google-beta
+  provider = google-beta
+
   region        = var.region
   name          = "${var.prefix}-ilb-frontend-subnet"
   ip_cidr_range = var.frontend_ip_range
@@ -21,7 +22,8 @@ resource "google_compute_subnetwork" "vault_ilb_frontend_subnet" {
 }
 
 resource "google_compute_region_network_endpoint_group" "serverless_backend_neg" {
-  provider              = google-beta
+  provider = google-beta
+
   region                = var.region
   name                  = "${var.prefix}-serverless-backend-neg"
   network_endpoint_type = "SERVERLESS"
@@ -79,7 +81,8 @@ resource "google_compute_region_target_https_proxy" "default" {
 }
 
 resource "google_compute_region_url_map" "default" {
-  provider        = google-beta
+  provider = google-beta
+
   region          = var.region
   name            = "${var.prefix}-ilb-url-map"
   default_service = google_compute_region_backend_service.default.id

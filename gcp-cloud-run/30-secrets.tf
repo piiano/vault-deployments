@@ -1,4 +1,3 @@
-
 ######################
 ### Secret Manager ###
 ######################
@@ -23,7 +22,7 @@ resource "google_secret_manager_secret_version" "db_password_secret_version" {
 
 resource "google_secret_manager_secret_iam_member" "cloud_run_secrets_access" {
   secret_id = google_secret_manager_secret.db_password_secret.secret_id
-  member    = "serviceAccount:${google_service_account.pvault-server-sa.email}"
+  member    = google_service_account.pvault-server-sa.member
   role      = "roles/secretmanager.secretAccessor"
 }
 
@@ -56,14 +55,14 @@ resource "google_secret_manager_secret_version" "admin_api_key_version" {
 
 resource "google_secret_manager_secret_iam_member" "cloud_run_admin_api_key_secret_access" {
   secret_id = google_secret_manager_secret.admin_api_key.secret_id
-  member    = "serviceAccount:${google_service_account.pvault-server-sa.email}"
+  member    = google_service_account.pvault-server-sa.member
   role      = "roles/secretmanager.secretAccessor"
 }
 
 resource "google_secret_manager_secret_iam_member" "bastion_vm_admin_api_key_secret_access" {
-  count     = var.create_bastion ? 1 : 0
+  count = var.create_bastion ? 1 : 0
 
   secret_id = google_secret_manager_secret.admin_api_key.secret_id
-  member    = "serviceAccount:${google_service_account.pvault-bastion-sa[0].email}"
+  member    = google_service_account.pvault-bastion-sa[0].member
   role      = "roles/secretmanager.secretAccessor"
 }

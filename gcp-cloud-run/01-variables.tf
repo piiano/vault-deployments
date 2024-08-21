@@ -1,4 +1,3 @@
-
 ###############
 ### General ###
 ###############
@@ -26,9 +25,9 @@ variable "default_region" {
 }
 
 variable "default_zone" {
-  description = "Default zone where resources without a specified zone will be deployed"
+  description = "Zone where resources without a specified zone will be deployed, defaults to first zone of `var.default_region`"
   type        = string
-  default     = "us-central1-a"
+  default     = null
 }
 
 variable "apis_disable_on_destroy" {
@@ -166,6 +165,27 @@ variable "connector_cloud_run_max_instances" {
   default     = 4
 }
 
+variable "cloud_run_scaling" {
+  description = "CloudRun scaling config, min/max instance count and instance request concurrency"
+  type = object({
+    min_instance_count               = optional(number, 0)
+    max_instance_count               = optional(number, 5)
+    max_instance_request_concurrency = optional(number, 200)
+  })
+  default = {}
+}
+
+variable "cloud_run_resources" {
+  description = "CloudRun resources, cpu and memory"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string, "1000m")
+      memory = optional(string, "512Mi")
+    }), {})
+  })
+  default = {}
+}
+
 ###########################
 ### Cloud Load Balancer ###
 ###########################
@@ -267,43 +287,49 @@ variable "pvault_cli_repository" {
 #################
 
 variable "cloudsql_name" {
-  description = "Vault cloud sql name"
+  description = "Vault Cloud SQL name"
   type        = string
   default     = "pvault"
 }
 
-variable "cloudsql_zone" {
-  description = "Vault cloud sql zone. if empty fallback to default zone"
+variable "cloudsql_region" {
+  description = "Vault Cloud SQL region. if empty fallback to default region"
   type        = string
   default     = null
 }
 
-variable "cloudsql_region" {
-  description = "Vault cloud sql region. if empty fallback to default region"
+variable "cloudsql_zone" {
+  description = "Vault Cloud SQL zone. if empty fallback to default zone"
   type        = string
   default     = null
 }
 
 variable "cloudsql_username" {
-  description = "Vault cloud sql user name"
+  description = "Vault Cloud SQL user name"
   type        = string
   default     = "pvault"
 }
 
 variable "cloudsql_tier" {
-  description = "Cloud sql instance tier"
+  description = "Cloud SQL instance tier"
   type        = string
   default     = "db-f1-micro"
 }
 
 variable "cloudsql_instance_ip_range" {
-  description = "Cloud sql instance IP range"
+  description = "Cloud SQL instance IP range"
   type        = string
   default     = "10.7.0.0/16"
 }
 
 variable "cloudsql_deletion_protection" {
-  description = "Cloud sql instance deletion protection"
+  description = "Cloud SQL instance deletion protection"
   type        = bool
   default     = false
+}
+
+variable "cloudsql_encryption_key_name" {
+  description = "Cloud SQL customer-managed encryption key (CMEK), full path to the encryption key"
+  type        = string
+  default     = null
 }

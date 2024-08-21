@@ -1,5 +1,5 @@
 locals {
-  apis = [
+  google_project_apis = [
     "sqladmin.googleapis.com",
     "run.googleapis.com",
     "artifactregistry.googleapis.com",
@@ -15,7 +15,7 @@ locals {
 }
 
 resource "google_project_service" "apis" {
-  for_each = toset(local.apis)
+  for_each = toset(local.google_project_apis)
   project  = var.project
   service  = each.key
 
