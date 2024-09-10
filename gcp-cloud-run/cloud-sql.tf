@@ -1,13 +1,6 @@
 #################
 ### Cloud SQL ###
 #################
-
-locals {
-  db_version = "POSTGRES_15"
-  db_region  = coalesce(var.cloudsql_region, var.default_region)
-  db_zone    = coalesce(var.cloudsql_zone, var.default_zone, data.google_compute_zones.db_zones.names[0])
-}
-
 module "postgresql-db" {
   source  = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
   version = "21.0.0"

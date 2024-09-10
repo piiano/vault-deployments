@@ -1,15 +1,6 @@
 #############
 ### Proxy ###
 #############
-
-locals {
-  client_region = coalesce(
-    var.client_region,
-    var.pvault_region,
-    var.default_region
-  )
-}
-
 resource "google_cloud_run_v2_service" "nginx_proxy" {
   count = var.create_proxy ? 1 : 0
 
