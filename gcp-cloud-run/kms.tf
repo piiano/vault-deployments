@@ -1,11 +1,6 @@
 ###########
 ### KMS ###
 ###########
-
-locals {
-  kms_ring_name = "key-ring"
-}
-
 resource "google_kms_key_ring" "db_keyring" {
   name       = "${var.deployment_id}-db-vault-${local.kms_ring_name}"
   location   = local.db_region

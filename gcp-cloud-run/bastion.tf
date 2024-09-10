@@ -1,15 +1,6 @@
 #####################
 ### Vault bastion ###
 #####################
-
-locals {
-  vault_bastion_zone               = coalesce(var.pvault_bastion_zone, var.default_zone, data.google_compute_zones.default_zones.names[0])
-  vault_url                        = var.create_proxy ? google_cloud_run_v2_service.nginx_proxy[0].uri : google_cloud_run_v2_service.pvault-server.uri
-  service_account_access_token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
-  admin_key_secret_url             = "https://secretmanager.googleapis.com/v1/${google_secret_manager_secret_version.admin_api_key_version.id}:access"
-  bastion_subnetwork               = var.create_vpc ? module.vpc[0].subnets["${local.client_region}/${var.deployment_id}-${var.pvault_bastion_subnet}-${var.env}"].id : var.bastion_subnet_name
-}
-
 resource "google_service_account" "pvault-bastion-sa" {
   count = var.create_bastion ? 1 : 0
 

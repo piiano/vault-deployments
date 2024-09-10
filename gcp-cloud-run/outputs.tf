@@ -5,5 +5,5 @@ output "vault_url" {
 
 output "authtoken" {
   description = "Auth token"
-  value       = google_secret_manager_secret.admin_api_key.id
+  value       = local.pvault_admin_api_key_secret.id
 }

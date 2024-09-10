@@ -1,29 +1,6 @@
 ################################
 ### Cloud Run (Vault Server) ###
 ################################
-
-locals {
-  pvault_region           = coalesce(var.pvault_region, var.default_region)
-  pvault_db_socket_folder = "/cloudsql"
-  # Override certain variables
-  pvault_env = merge(
-    var.pvault_env_vars,
-    {
-      "PVAULT_LOG_CUSTOMER_IDENTIFIER" = var.pvault_log_customer_identifier,
-      "PVAULT_LOG_CUSTOMER_ENV"        = var.pvault_log_customer_env,
-      "PVAULT_LOG_CUSTOMER_REGION"     = var.pvault_region,
-      "PVAULT_TLS_ENABLE"              = "false",
-      "PVAULT_DB_REQUIRE_TLS"          = "false",
-      "PVAULT_DB_HOSTNAME"             = "${local.pvault_db_socket_folder}/${module.postgresql-db.instance_connection_name}",
-      "PVAULT_DB_NAME"                 = var.cloudsql_name,
-      "PVAULT_DB_USER"                 = var.cloudsql_username,
-      "PVAULT_SERVICE_LICENSE"         = var.pvault_service_license,
-      "PVAULT_KMS_URI"                 = "gcp-kms://${google_kms_crypto_key.vault-encryption-key.key_ring}/cryptoKeys/${google_kms_crypto_key.vault-encryption-key.name}",
-      "PVAULT_DEVMODE"                 = tostring(var.pvault_devmode),
-    }
-  )
-}
-
 resource "google_cloud_run_v2_service" "pvault-server" {
   name     = "${var.deployment_id}-pvault-server"
   location = local.pvault_region
@@ -76,7 +53,7 @@ resource "google_cloud_run_v2_service" "pvault-server" {
         name = "PVAULT_SERVICE_ADMIN_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.admin_api_key.secret_id
+            secret  = local.pvault_admin_api_key_secret.secret_id
             version = "latest"
           }
         }

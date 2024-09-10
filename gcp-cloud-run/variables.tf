@@ -150,6 +150,17 @@ variable "pvault_devmode" {
   default     = false
 }
 
+variable "pvault_admin_api_key" {
+  description = "Pvault admin key settings. If `secret_id` is provided, an existing secret/key is used. If `secret_id` is not set, an admin key will be generated, and can be optionally rotated every <n> days with `rotate_days`. See https://docs.piiano.com/guides/manage-users-and-policies/set-admin-api-key for more details."
+  type = object({
+    # Do not generate an admin key, use existing Secret Manager Secret, `rotate_days` has no effect
+    secret_id = optional(string)
+    # Rotate generated admin key every <n> days
+    rotate_days = optional(number, 0)
+  })
+  default = {}
+}
+
 variable "pvault_env_vars" {
   description = "A map of environment variables and values to set for the Pvault service. Except the following: PVAULT_LOG_CUSTOMER_IDENTIFIER, PVAULT_LOG_CUSTOMER_ENV, PVAULT_TLS_ENABLE, PVAULT_DB_REQUIRE_TLS, PVAULT_DB_HOSTNAME, PVAULT_DB_NAME, PVAULT_DB_USER, PVAULT_SERVICE_LICENSE, PVAULT_SERVICE_TIMEOUT_SECONDS, PVAULT_KMS_URI, PVAULT_DEVMODE, PVAULT_DB_PASSWORD, PVAULT_SERVICE_ADMIN_API_KEY. See [https://piiano.com/docs/guides/configure/environment-variables](https://piiano.com/docs/guides/configure/environment-variables) for more details."
   type        = map(string)

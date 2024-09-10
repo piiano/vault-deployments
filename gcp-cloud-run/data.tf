@@ -24,3 +24,9 @@ data "google_compute_image" "cos_lts" {
   project = "cos-cloud"
   family  = "cos-113-lts"
 }
+
+data "google_secret_manager_secret" "admin_api_key" {
+  count = local.pvault_admin_api_key_generate ? 0 : 1
+
+  secret_id = var.pvault_admin_api_key.secret_id
+}

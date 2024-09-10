@@ -2,7 +2,7 @@
 
 This module deploys Piiano Vault on a given GCP region. It will output the private Vault URL post deployment.
 
-This application version is 2.0.1 and is compatible with Vault version 1.12.4 .
+This application version is 2.1.0 and is compatible with Vault version 1.12.4 .
 
 ## Solution Architecture
 
@@ -114,6 +114,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="provider_google"></a> [google](#provider\_google) | >= 5.41.0 |
 | <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 5.41.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_time"></a> [time](#provider\_time) | n/a |
 
 ## Modules
 
@@ -158,10 +159,12 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | [google_service_account.pvault-bastion-sa](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.pvault-server-sa](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [random_password.admin_api_key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [time_rotating.admin_api_key](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
 | [google_compute_image.cos_lts](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_image) | data source |
 | [google_compute_zones.db_zones](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_zones) | data source |
 | [google_compute_zones.default_zones](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_zones) | data source |
 | [google_iam_policy.noauth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/iam_policy) | data source |
+| [google_secret_manager_secret.admin_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret) | data source |
 
 ## Inputs
 
@@ -197,6 +200,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_project"></a> [project](#input\_project) | GCP Project ID where resources will be deployed | `string` | n/a | yes |
 | <a name="input_proxy_image"></a> [proxy\_image](#input\_proxy\_image) | Proxy Docker image | `string` | `"us-central1-docker.pkg.dev/piiano/docker/nginx-proxy:3"` | no |
 | <a name="input_proxy_vault_serverless_connector_range"></a> [proxy\_vault\_serverless\_connector\_range](#input\_proxy\_vault\_serverless\_connector\_range) | Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC) | `string` | `"10.8.3.0/28"` | no |
+| <a name="input_pvault_admin_api_key"></a> [pvault\_admin\_api\_key](#input\_pvault\_admin\_api\_key) | Pvault admin key settings. If `secret_id` is provided, an existing secret/key is used. If `secret_id` is not set, an admin key will be generated, and can be optionally rotated every <n> days with `rotate_days`. See https://docs.piiano.com/guides/manage-users-and-policies/set-admin-api-key for more details. | <pre>object({<br>    # Do not generate an admin key, use existing Secret Manager Secret, `rotate_days` has no effect<br>    secret_id = optional(string)<br>    # Rotate generated admin key every <n> days<br>    rotate_days = optional(number, 0)<br>  })</pre> | `{}` | no |
 | <a name="input_pvault_bastion_subnet"></a> [pvault\_bastion\_subnet](#input\_pvault\_bastion\_subnet) | Subnet where Vault bastion will be deployed | `string` | `"sb-vault-authorized"` | no |
 | <a name="input_pvault_bastion_subnet_range"></a> [pvault\_bastion\_subnet\_range](#input\_pvault\_bastion\_subnet\_range) | Subnet CIDR range for the Vault bastion VM | `string` | `"10.8.0.16/28"` | no |
 | <a name="input_pvault_bastion_zone"></a> [pvault\_bastion\_zone](#input\_pvault\_bastion\_zone) | Zone where Vault bastion will be deployed | `string` | `null` | no |
@@ -209,7 +213,7 @@ pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager
 | <a name="input_pvault_repository"></a> [pvault\_repository](#input\_pvault\_repository) | Vault Server container repository | `string` | `"us-central1-docker.pkg.dev/piiano/docker/pvault-server"` | no |
 | <a name="input_pvault_service_license"></a> [pvault\_service\_license](#input\_pvault\_service\_license) | Vault server license token | `string` | n/a | yes |
 | <a name="input_pvault_sql_serverless_connector_range"></a> [pvault\_sql\_serverless\_connector\_range](#input\_pvault\_sql\_serverless\_connector\_range) | Cloud Run connector /28 CIDR range (used to connect Cloud Run to VPC) | `string` | `"10.8.0.0/28"` | no |
-| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | Piiano Vault version | `string` | `"1.12.3"` | no |
+| <a name="input_pvault_tag"></a> [pvault\_tag](#input\_pvault\_tag) | Piiano Vault version | `string` | `"1.12.4"` | no |
 | <a name="input_routes"></a> [routes](#input\_routes) | List of routes to be created when `create_vpc` is true | `list(map(string))` | <pre>[<br>  {<br>    "description": "route through IGW to access internet",<br>    "destination_range": "0.0.0.0/0",<br>    "name": "rt-egress-internet",<br>    "next_hop_internet": "true"<br>  }<br>]</pre> | no |
 | <a name="input_subnets"></a> [subnets](#input\_subnets) | List of subnets to be created when `create_vpc` is true | `list(map(string))` | `[]` | no |
 | <a name="input_vault_cn_subnet_name"></a> [vault\_cn\_subnet\_name](#input\_vault\_cn\_subnet\_name) | Vault connector subnet name in the vpc in case that `create_vpc` is false | `string` | `null` | no |
