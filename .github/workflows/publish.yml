@@ -98,7 +98,7 @@ jobs:
           (inputs.update-product == 'all' || inputs.update-product == 'cloudrun')
         working-directory: gcp-cloud-run
         run: |
-          sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' 01-variables.tf
+          sed -i -E 's/variable \"pvault_tag\" \{ default = \".*\" \}/variable \"pvault_tag\" \{ default = \"${{ inputs.vault_version  }}\" \}/g' variables.tf
           sed -i -E "s|$VVER [0-9]+\.[0-9]+\.[0-9]+|$VVER ${{ inputs.vault_version }}|g" README.md
           sed -i -E "s|$AVER [0-9]+\.[0-9]+\.[0-9]+|$AVER ${{ steps.versions.outputs.new_cloudrun_version }}|g" README.md
           sed -i -E "s|pvault-cli:[0-9]+\.[0-9]+\.[0-9]+|pvault-cli:${{ inputs.vault_version }}|g" README.md
@@ -113,7 +113,7 @@ jobs:
             echo "There are changes to commit"
             git add aws-apprunner/01-variables.tf aws-apprunner/README.md
             git add aws-ecs/01-variables.tf aws-ecs/README.md
-            git add gcp-cloud-run/01-variables.tf gcp-cloud-run/README.md
+            git add gcp-cloud-run/variables.tf gcp-cloud-run/README.md
             git commit -m "Update publish bump=${{ inputs.bump-package }} with vault version ${{ inputs.vault_version }}"
             git push  
           else
