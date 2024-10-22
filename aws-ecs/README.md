@@ -2,7 +2,7 @@
 
 This module deploys Piiano Vault on a given AWS region. It will outputs the private Vault URL post deployment.
 
-This application version is 1.0.23 and is compatible with Vault version 1.12.4 .
+This application version is 1.0.24 and is compatible with Vault version 1.13.1 .
 
 ## Solution Architecture
 
@@ -78,7 +78,7 @@ vault_url = "https://<random dns>.<region>.elb.amazonaws.com"
 To check that the Vault is working as expected run the following from inside the application VPC. Optionally, the deployment script can deploy a bastion machine for this purpose:
 
 ```sh
-alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.12.4"
+alias pvault="docker run --rm -i -v $(pwd):/pwd -w /pwd piiano/pvault-cli:1.13.1"
 pvault --addr <VAULT URL from above> --authtoken '<token from the secret manager>' selftest basic
 ```
 
